@@ -1,0 +1,19 @@
+Efflora HarmonyOS Bench
+Copyright 2026 Efflora
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party materials
+---------------------
+Individual benchmark tasks may include, or download at build time, source code
+from third-party open-source projects. Such code remains subject to its original
+license. The upstream repository, commit and license of each task are recorded in
+the task's task.toml under [metadata] (upstream_repo, upstream_commit,
+upstream_license).
+
+HarmonyOS SDK, Command Line Tools for HarmonyOS, DevEco Studio and related
+tooling are provided by Huawei under their own terms. They are NOT distributed
+with this repository; users must obtain them separately.
+
+"HarmonyOS" and "OpenHarmony" are trademarks of their respective owners. This
+project is not affiliated with or endorsed by Huawei or the OpenAtom Foundation.

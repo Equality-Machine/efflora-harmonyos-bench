@@ -1,0 +1,9 @@
+{
+  "bundle": "com.levelup.dailyquests",
+  "fpoints": [
+    { "id": "F1", "scenario": 1, "title": "点\"+\"弹出新建表单（输入框/分类/经验值/创建/取消），空名或纯空格不能创建，取消不创建", "phases": ["LevelupCustomQuest#f1_form_and_validation"] },
+    { "id": "F2", "scenario": 2, "title": "创建后今日页末尾出现卡片、副标题计数与可获 XP 联动，默认值与创建顺序正确", "phases": ["LevelupCustomQuest#f2_create_appears_today"] },
+    { "id": "F3", "scenario": 3, "title": "详情页序号/XP 正确，一键完成后今日副标题已获 XP 与我的·分类累计联动", "phases": ["LevelupCustomQuest#f3_complete_and_stats"] },
+    { "id": "F4", "scenario": 4, "title": "重启后任务与完成状态保留；可删除自定义任务并恢复原状且持久，内置任务无删除按钮", "phases": ["LevelupCustomQuest#f4_setup", "LevelupCustomQuest#f4_verify_then_delete", "LevelupCustomQuest#f4_verify_deleted"] }
+  ]
+}

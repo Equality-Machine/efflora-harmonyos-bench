@@ -1,0 +1,1096 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "基于猫咪的基本框架打造！"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "通往一切的猫咪！"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "冲浪喵"
+    },
+    {
+      "name": "General_new",
+      "value": "新建  󰀵"
+    },
+    {
+      "name": "General_delete",
+      "value": "移除  󰀁"
+    },
+    {
+      "name": "General_clear",
+      "value": "清除  󰀖"
+    },
+    {
+      "name": "General_save",
+      "value": "保存  󰀻"
+    },
+    {
+      "name": "General_confirm",
+      "value": "确认  󰀓"
+    },
+    {
+      "name": "General_cancel",
+      "value": "取消  󰁖"
+    },
+    {
+      "name": "General_refresh",
+      "value": "刷新  󰃈"
+    },
+    {
+      "name": "General_wait",
+      "value": "稍等……  󰃯"
+    },
+    {
+      "name": "General_select",
+      "value": "选择  󰂺"
+    },
+    {
+      "name": "General_selectall",
+      "value": "全选  󰅂"
+    },
+    {
+      "name": "General_unselect",
+      "value": "取消选择  󰃑"
+    },
+    {
+      "name": "General_disabled",
+      "value": "关掉  󰁕"
+    },
+    {
+      "name": "General_pardonListed",
+      "value": "赦免上表  󰖿"
+    },
+    {
+      "name": "General_blockAll",
+      "value": "全部屏蔽  󰆨"
+    },
+    {
+      "name": "General_blockListed",
+      "value": "屏蔽上表  󰖿"
+    },
+    {
+      "name": "General_expand",
+      "value": "展开  󰃛"
+    },
+    {
+      "name": "General_collapse",
+      "value": "收起  󰃘"
+    },
+    {
+      "name": "General_export",
+      "value": "导出  󰃕"
+    },
+    {
+      "name": "General_copyLink",
+      "value": "复制  󰊡"
+    },
+    {
+      "name": "General_pause",
+      "value": "暂停  󰂱"
+    },
+    {
+      "name": "General_continue",
+      "value": "继续  󰂴"
+    },
+    {
+      "name": "General_view",
+      "value": "查看  󰃋"
+    },
+    {
+      "name": "General_username",
+      "value": "󰙬  用户名 / 账户"
+    },
+    {
+      "name": "General_password",
+      "value": "󰒛  密码"
+    },
+    {
+      "name": "General_empty",
+      "value": "空空如也。ヽ（´ー｀）┌"
+    },
+    {
+      "name": "General_noChange",
+      "value": "无变更。ヽ（´ー｀）┌"
+    },
+    {
+      "name": "ErrorPrompt_contact",
+      "value": "如果你觉得这是一个 Bug / 这不是你的错，还请拜托联系 Liny 报告这个问题 / 寻求帮助！"
+    },
+    {
+      "name": "Settings",
+      "value": "设置"
+    },
+    {
+      "name": "Settings_category_onStartUp",
+      "value": "启动"
+    },
+    {
+      "name": "Settings_category_onStartUp_page",
+      "value": "启动至页面"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_newTab",
+      "value": "新标签页"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_home",
+      "value": "主页"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_continue",
+      "value": "恢复上次"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_nothing",
+      "value": "什么也不做"
+    },
+    {
+      "name": "Settings_category_general",
+      "value": "通用"
+    },
+    {
+      "name": "Settings_category_general_surf",
+      "value": "冲浪"
+    },
+    {
+      "name": "Settings_category_general_surf_userAgent",
+      "value": "用户标识（UA）"
+    },
+    {
+      "name": "Settings_category_general_surf_searchEngine",
+      "value": "搜索引擎"
+    },
+    {
+      "name": "Settings_category_general_surf_newTabUrl",
+      "value": "新标签页地址"
+    },
+    {
+      "name": "Settings_category_general_surf_homeUrl",
+      "value": "主页地址"
+    },
+    {
+      "name": "Settings_category_general_homepage",
+      "value": "猫咪的主页"
+    },
+    {
+      "name": "Settings_category_general_homepage_customize",
+      "value": "个性化设置  󰦜"
+    },
+    {
+      "name": "Settings_category_experience",
+      "value": "体验"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu",
+      "value": "上下文菜单"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_enable",
+      "value": "启用上下文菜单"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_trimTexts",
+      "value": "去除文本前后空格"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_imagePreview",
+      "value": "图片预览"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_imageWidth",
+      "value": "图片宽度"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_webPreview",
+      "value": "网页预览"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_webPreviewHeight",
+      "value": "网页高度"
+    },
+    {
+      "name": "Settings_category_experience_downloads",
+      "value": "下载"
+    },
+    {
+      "name": "Settings_category_experience_downloads_directSave",
+      "value": "直接存到 󰃅 下载"
+    },
+    {
+      "name": "Settings_category_experience_downloads_openOnFinish",
+      "value": "完成时在文件中查看"
+    },
+    {
+      "name": "Settings_category_experience_continuation",
+      "value": "流转"
+    },
+    {
+      "name": "Settings_category_experience_continuation_closeApp",
+      "value": "流转后关闭应用"
+    },
+    {
+      "name": "Settings_category_experience_continuation_closeTab",
+      "value": "流转后关闭标签页"
+    },
+    {
+      "name": "Settings_category_experience_suggestions",
+      "value": "建议"
+    },
+    {
+      "name": "Settings_category_experience_suggestions_maxBookmark",
+      "value": "书签建议数量上限"
+    },
+    {
+      "name": "Settings_category_experience_suggestions_maxHistory",
+      "value": "历史建议数量上限"
+    },
+    {
+      "name": "Settings_category_experience_advanced",
+      "value": "高级"
+    },
+    {
+      "name": "Settings_category_experience_advanced_adblocker",
+      "value": "广告过滤"
+    },
+    {
+      "name": "Settings_category_experience_advanced_adblocker_manage",
+      "value": "管理广告过滤  󰯊"
+    },
+    {
+      "name": "Settings_category_experience_advanced_adblocker_rules",
+      "value": "管理过滤规则  󰖿"
+    },
+    {
+      "name": "Settings_category_experience_advanced_webImages",
+      "value": "网页图片管理器"
+    },
+    {
+      "name": "Settings_category_experience_advanced_webImages_manage",
+      "value": "管理网页图片  󰢪"
+    },
+    {
+      "name": "Settings_category_experience_advanced_Js",
+      "value": "JavaScript 管理器"
+    },
+    {
+      "name": "Settings_category_experience_advanced_Js_manage",
+      "value": "管理 JavaScript  󰄪"
+    },
+    {
+      "name": "Settings_category_accessibility",
+      "value": "辅助"
+    },
+    {
+      "name": "Settings_category_accessibility_webBack",
+      "value": "网页系统返回"
+    },
+    {
+      "name": "Settings_category_accessibility_webKeys",
+      "value": "网页快捷键返回"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand",
+      "value": "单手优化"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_reverseSideMenus",
+      "value": "反转侧边菜单 󰎥 / 󰎩"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_reverseSideBars",
+      "value": "反转侧边栏"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_reverseHomeShortcuts",
+      "value": "反转主页快捷方式"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_smartReachability",
+      "value": "适人握持 󰎵"
+    },
+    {
+      "name": "Settings_category_accessibility_keyShortcuts",
+      "value": "快捷键"
+    },
+    {
+      "name": "Settings_category_accessibility_keyShortcuts_manage",
+      "value": "快捷键管理  󰌐"
+    },
+    {
+      "name": "Settings_category_appearance",
+      "value": "外观"
+    },
+    {
+      "name": "Settings_category_appearance_bottomAvoid",
+      "value": "底部避让 󰎵 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_navigationIndicator",
+      "value": "导航条 󰎵 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_layout",
+      "value": "布局"
+    },
+    {
+      "name": "Settings_category_appearance_layout_editButtons",
+      "value": "管理按钮们  󰗘"
+    },
+    {
+      "name": "Settings_category_appearance_layout_titleBarPosition",
+      "value": "标题栏位置"
+    },
+    {
+      "name": "Settings_category_appearance_layout_tabsStyle_wide",
+      "value": "标签栏位置 󰎥 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_layout_tabsStyle_slim",
+      "value": "标签栏位置 󰎵"
+    },
+    {
+      "name": "Settings_category_appearance_layout_shrinkSideAreaButton",
+      "value": "收起侧区按钮"
+    },
+    {
+      "name": "Settings_category_appearance_layout_shrinkSideAreaAuto",
+      "value": "自动收起"
+    },
+    {
+      "name": "Settings_category_appearance_layout_shrinkSideAreaNoPush",
+      "value": "展开时不挤压页面"
+    },
+    {
+      "name": "Settings_category_appearance_windows",
+      "value": "窗口"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitle_wide",
+      "value": "显示窗口标题 󰎥 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitle_slim",
+      "value": "显示窗口标题 󰎵"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitlePosition",
+      "value": "标题位置"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitle_gigantic",
+      "value": "失焦时显示超大标题"
+    },
+    {
+      "name": "Settings_category_appearance_animation",
+      "value": "动画"
+    },
+    {
+      "name": "Settings_category_appearance_animation_response",
+      "value": "动画响应"
+    },
+    {
+      "name": "Settings_category_appearance_animation_elasticity",
+      "value": "动画弹性"
+    },
+    {
+      "name": "Settings_category_appearance_animation_reset",
+      "value": "重置动画  󰃈"
+    },
+    {
+      "name": "Settings_category_appearance_colors",
+      "value": "颜色"
+    },
+    {
+      "name": "Settings_category_appearance_colors_effects",
+      "value": "高级效果"
+    },
+    {
+      "name": "Settings_category_appearance_colors_light",
+      "value": "浅色主题"
+    },
+    {
+      "name": "Settings_category_appearance_colors_dark",
+      "value": "深色主题"
+    },
+    {
+      "name": "Settings_category_appearance_colors_reset",
+      "value": "重置主题  󰃈"
+    },
+    {
+      "name": "Settings_category_appearance_colors_forceDarkMode",
+      "value": "强制网页深色模式"
+    },
+    {
+      "name": "Settings_category_appearance_colors_forceDarkMode_manage",
+      "value": "管理网页深色模式  󰓶"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_hue",
+      "value": "色相"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_saturation",
+      "value": "饱和度"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_value",
+      "value": "值（亮度）"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_code",
+      "value": "颜色代码"
+    },
+    {
+      "name": "Settings_category_history",
+      "value": "历史"
+    },
+    {
+      "name": "Settings_category_history_recordNew",
+      "value": "记录新的历史"
+    },
+    {
+      "name": "Settings_category_history_view",
+      "value": "查看历史  󰆄"
+    },
+    {
+      "name": "Settings_category_history_indexNow",
+      "value": "现在（重建）索引  󰄁"
+    },
+    {
+      "name": "Settings_category_history_indexing",
+      "value": "重构中……  󰄁"
+    },
+    {
+      "name": "Settings_category_history_indexLoadQuantity",
+      "value": "索引加载数量"
+    },
+    {
+      "name": "Settings_category_storage",
+      "value": "存储"
+    },
+    {
+      "name": "Settings_category_storage_webCache",
+      "value": "Web 缓存"
+    },
+    {
+      "name": "Settings_category_storage_historyIndex",
+      "value": "历史索引文件"
+    },
+    {
+      "name": "Settings_category_security",
+      "value": "安全"
+    },
+    {
+      "name": "Settings_category_security_cookies",
+      "value": "曲奇（Cookies）"
+    },
+    {
+      "name": "Settings_category_security_cookies_intelligentTrackingPrevention",
+      "value": "方舟智能防追踪"
+    },
+    {
+      "name": "Settings_category_security_cookies_thirdPartyCookies",
+      "value": "第三方曲奇（Cookies）"
+    },
+    {
+      "name": "Settings_category_security_cookies_viewManage",
+      "value": "查看和管理  󰀩"
+    },
+    {
+      "name": "Settings_category_cardboardBox",
+      "value": "纸箱"
+    },
+    {
+      "name": "Settings_category_cardboardBox_debug",
+      "value": "调试"
+    },
+    {
+      "name": "Settings_category_cardboardBox_debug_resourceMonitor",
+      "value": "资源监视器"
+    },
+    {
+      "name": "Settings_category_cardboardBox_debug_faultLogs",
+      "value": "错误日志  󰀩"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup",
+      "value": "备份"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_settings_desc",
+      "value": "导出设置用以备份，或作为其他用途："
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_settings_export",
+      "value": "导出设置  󰃕"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_settings_import",
+      "value": "导入设置  󰙧"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_everything_desc",
+      "value": "或者导出完整数据备份，包括书签、历史、设置……打包成一个文件带走！"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_everything_export",
+      "value": "导出完整数据  󰃕"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_everything_import",
+      "value": "导入完整数据  󰙧"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok",
+      "value": "导入成功！"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok_desc",
+      "value": "文件没有问题。可能需要重启以激活所有新导入的东西！"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok_partial",
+      "value": "导入成功！（部分）"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok_partial_desc",
+      "value": "我们只能读取到部分所需的文件……"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_fail",
+      "value": "导入失败…… ゞ◎Д◎ヾ"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_fail_extract",
+      "value": "导入解压失败了。是不是文件损坏了？"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_fail_decode",
+      "value": "导入解析失败了。是不是文件损坏了？"
+    },
+    {
+      "name": "Settings_category_about",
+      "value": "关于"
+    },
+    {
+      "name": "Settings_category_about_site_bilibili",
+      "value": "Liny 的哔哩哔哩主页  󰃭"
+    },
+    {
+      "name": "Settings_category_about_site_github",
+      "value": "Github 仓库  󰇶"
+    },
+    {
+      "name": "Settings_category_about_site_gitee",
+      "value": "Gitee 仓库  󰮰"
+    },
+    {
+      "name": "Settings_category_about_thank",
+      "value": "感谢你！我的朋友！在足够混乱的生活中选择体验这个更加混乱的浏览器！:3"
+    },
+    {
+      "name": "Settings_category_about_credits",
+      "value": "致谢  󰈘"
+    },
+    {
+      "name": "Settings_category_about_update",
+      "value": "更新"
+    },
+    {
+      "name": "Settings_category_about_update_history",
+      "value": "更新历史  󰣚"
+    },
+    {
+      "name": "Settings_category_deveowlopers",
+      "value": "开发"
+    },
+    {
+      "name": "Settings_category_deveowlopers_on",
+      "value": "开发者选项"
+    },
+    {
+      "name": "Settings_category_deveowlopers_openPanel",
+      "value": "猫咪管理面板  󰊀"
+    },
+    {
+      "name": "Bookmarks",
+      "value": "书签"
+    },
+    {
+      "name": "Bookmarks_selectFolder",
+      "value": "选文件夹"
+    },
+    {
+      "name": "Bookmarks_drop",
+      "value": "松手加入此文件夹！"
+    },
+    {
+      "name": "Homepage",
+      "value": "猫咪的主页"
+    },
+    {
+      "name": "Homepage_backdrop",
+      "value": "壁纸"
+    },
+    {
+      "name": "Homepage_backdrop_selectFromFiles",
+      "value": "从文件中选择  󰃅"
+    },
+    {
+      "name": "Homepage_backdrop_selectFromGallery",
+      "value": "从相册中选择  󰓥"
+    },
+    {
+      "name": "Homepage_shortcuts",
+      "value": "快捷书签"
+    },
+    {
+      "name": "Homepage_shortcuts_initialHeight",
+      "value": "快捷列表初始高度"
+    },
+    {
+      "name": "AdBlocker",
+      "value": "广告过滤"
+    },
+    {
+      "name": "AdBlocker_tutorial",
+      "value": "启用广告过滤之后，此列表中的域名将会在大过滤器爪下得到赦免！你也可以在底下直接把整个功能关掉。"
+    },
+    {
+      "name": "AdBlocker_rules",
+      "value": "过滤规则"
+    },
+    {
+      "name": "AdBlocker_rules_tutorial",
+      "value": "仅接受 EasyList 格式规则 ／(=∵=)＼"
+    },
+    {
+      "name": "WebImages",
+      "value": "网页图片黑名单"
+    },
+    {
+      "name": "WebImages_tutorial",
+      "value": "通过此处的设置，我们可以选择屏蔽所有 / 某些域名上的网络图片！"
+    },
+    {
+      "name": "JavaScripts",
+      "value": "网页 JavaScript 黑名单"
+    },
+    {
+      "name": "JavaScripts_tutorial",
+      "value": "通过此处的设置，我们可以选择屏蔽所有 / 某些域名上的网页 JavaScript！"
+    },
+    {
+      "name": "Dark",
+      "value": "强制深色模式"
+    },
+    {
+      "name": "Dark_tutorial",
+      "value": "强制深色模式开启后，此列表中的域名将会在大黑化器爪下得到赦免！你也可以在底下直接把整个功能关掉。"
+    },
+    {
+      "name": "KeyShortcuts",
+      "value": "快捷键"
+    },
+    {
+      "name": "KeyShortcuts_newTab",
+      "value": "󰀵  新建标签页"
+    },
+    {
+      "name": "KeyShortcuts_closeTab",
+      "value": "󰁖  关闭标签页"
+    },
+    {
+      "name": "KeyShortcuts_showTabs",
+      "value": "󰨴  显示标签页栏"
+    },
+    {
+      "name": "KeyShortcuts_focusAddress",
+      "value": "󰁱  聚焦地址栏"
+    },
+    {
+      "name": "KeyShortcuts_searchInPage",
+      "value": "󰖳  页面内查找"
+    },
+    {
+      "name": "KeyShortcuts_fullscreen",
+      "value": "󰖶  全屏"
+    },
+    {
+      "name": "KeyShortcuts_history",
+      "value": "󰏕  历史记录"
+    },
+    {
+      "name": "KeyShortcuts_refresh",
+      "value": "󰃈  刷新"
+    },
+    {
+      "name": "KeyShortcuts_print",
+      "value": "󰆙  打印页面"
+    },
+    {
+      "name": "KeyShortcuts_newWindow",
+      "value": "󰒢  新建窗口"
+    },
+    {
+      "name": "KeyShortcuts_pin",
+      "value": "󰀲  窗口置顶"
+    },
+    {
+      "name": "KeyShortcuts_save",
+      "value": "󰀻  保存"
+    },
+    {
+      "name": "KeyShortcuts_fullscreenWindowed",
+      "value": "󰃍  窗口化全屏"
+    },
+    {
+      "name": "KeyShortcuts_esc",
+      "value": "󰃊  返回"
+    },
+    {
+      "name": "KeyShortcuts_showSidebar",
+      "value": "󰨴  显示侧边栏"
+    },
+    {
+      "name": "Buttons",
+      "value": "管理按钮们"
+    },
+    {
+      "name": "Buttons_control",
+      "value": "控制区（左边）"
+    },
+    {
+      "name": "Buttons_addressBarOnFocus",
+      "value": "地址栏（选中时显示）"
+    },
+    {
+      "name": "Buttons_addressBar",
+      "value": "地址栏"
+    },
+    {
+      "name": "Buttons_title",
+      "value": "标题栏（右边）"
+    },
+    {
+      "name": "Buttons_more",
+      "value": "更多"
+    },
+    {
+      "name": "Buttons_notice",
+      "value": "你应该在任何一个插槽上至少保留一个设置 󰀠 按钮！"
+    },
+    {
+      "name": "History",
+      "value": "󰏕"
+    },
+    {
+      "name": "History_search_fast",
+      "value": "快搜  󰇝"
+    },
+    {
+      "name": "History_search_full",
+      "value": "细搜  󰊮"
+    },
+    {
+      "name": "FaultLogs",
+      "value": "错误日志"
+    },
+    {
+      "name": "Cookies",
+      "value": "曲奇饼干（Cookies）"
+    },
+    {
+      "name": "Cookies_clearAll",
+      "value": "清除【所有】域名的曲奇  󰀁"
+    },
+    {
+      "name": "ResMonitor_CPU",
+      "value": "CPU"
+    },
+    {
+      "name": "ResMonitor_VRAM",
+      "value": "显存"
+    },
+    {
+      "name": "ResMonitor_PSS",
+      "value": "物理集"
+    },
+    {
+      "name": "ResMonitor_VSS",
+      "value": "虚拟集"
+    },
+    {
+      "name": "ResMonitor_nativeHeap",
+      "value": "原生堆"
+    },
+    {
+      "name": "ResMonitor_sharedDirty",
+      "value": "共享脏"
+    },
+    {
+      "name": "ResMonitor_privateDirty",
+      "value": "私有脏"
+    },
+    {
+      "name": "Updates",
+      "value": "更新历史"
+    },
+    {
+      "name": "Orientation_select_0",
+      "value": "未定义／系统判定"
+    },
+    {
+      "name": "Orientation_select_1",
+      "value": "竖屏"
+    },
+    {
+      "name": "Orientation_select_2",
+      "value": "横屏"
+    },
+    {
+      "name": "Orientation_select_3",
+      "value": "反向竖屏"
+    },
+    {
+      "name": "Orientation_select_4",
+      "value": "反向横屏"
+    },
+    {
+      "name": "Orientation_select_5",
+      "value": "自动旋转／不受控制中心控制"
+    },
+    {
+      "name": "Orientation_select_6",
+      "value": "自动竖向旋转／不受控制中心控制"
+    },
+    {
+      "name": "Orientation_select_7",
+      "value": "自动横向旋转／不受控制中心控制"
+    },
+    {
+      "name": "Orientation_select_8",
+      "value": "自动旋转／控制中心控制／不受系统限制"
+    },
+    {
+      "name": "Orientation_select_9",
+      "value": "自动竖向旋转／控制中心控制"
+    },
+    {
+      "name": "Orientation_select_10",
+      "value": "自动横向旋转／控制中心控制"
+    },
+    {
+      "name": "Orientation_select_11",
+      "value": "锁定"
+    },
+    {
+      "name": "Orientation_select_12",
+      "value": "自动旋转／控制中心控制／受系统限制"
+    },
+    {
+      "name": "Orientation_select_13",
+      "value": "临时竖屏"
+    },
+    {
+      "name": "Orientation_select_14",
+      "value": "临时横屏"
+    },
+    {
+      "name": "Orientation_select_15",
+      "value": "临时反向竖屏"
+    },
+    {
+      "name": "Orientation_select_16",
+      "value": "临时反向横屏"
+    },
+    {
+      "name": "Orientation_select_17",
+      "value": "跟随桌面"
+    },
+    {
+      "name": "Fullscreen_full",
+      "value": "全屏"
+    },
+    {
+      "name": "Fullscreen_windowed",
+      "value": "窗口化全屏"
+    },
+    {
+      "name": "QR",
+      "value": "二维码"
+    },
+    {
+      "name": "QuickUA",
+      "value": "用户代理切换"
+    },
+    {
+      "name": "QuickSE",
+      "value": "重新搜索于"
+    },
+    {
+      "name": "UserCredits",
+      "value": "致谢"
+    },
+    {
+      "name": "ScratchingBoard_drop",
+      "value": "松手投喂猫抓板！"
+    },
+    {
+      "name": "Jump_title",
+      "value": "网页尝试跳转！"
+    },
+    {
+      "name": "Jump_from",
+      "value": "来自"
+    },
+    {
+      "name": "SslError_title",
+      "value": "SSL 错误警告！要继续访问吗？"
+    },
+    {
+      "name": "WebPermissions_title",
+      "value": "权限申请！"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_MIDI_SYSEX",
+      "value": "󰂬  MIDI SYSEX"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_VIDEO_CAPTURE",
+      "value": "󰑛  视频捕获，例如相机"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_AUDIO_CAPTURE",
+      "value": "󰀆  音频捕获，例如麦克风"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_SENSOR",
+      "value": "󰊢  传感器，例如加速度传感器"
+    },
+    {
+      "name": "ScreenCapture_title",
+      "value": "允许网页捕获屏幕？"
+    },
+    {
+      "name": "Geolocation_title",
+      "value": "允许网页访问地理位置？"
+    },
+    {
+      "name": "HttpAuth_title",
+      "value": "登录"
+    },
+    {
+      "name": "Downloads_title",
+      "value": "下载"
+    },
+    {
+      "name": "Downloads_custom",
+      "value": "自定义下载"
+    },
+    {
+      "name": "Downloads_overview",
+      "value": "总共"
+    },
+    {
+      "name": "Downloads_state_in_progress",
+      "value": "󰣚  下载中"
+    },
+    {
+      "name": "Downloads_state_completed",
+      "value": "󰤎  已完成"
+    },
+    {
+      "name": "Downloads_state_canceled",
+      "value": "󰁕  已取消"
+    },
+    {
+      "name": "Downloads_state_interrupted",
+      "value": "󰄊  已中断"
+    },
+    {
+      "name": "Downloads_state_pending",
+      "value": "󰃯  等待中"
+    },
+    {
+      "name": "Downloads_state_paused",
+      "value": "󰂰  已暂停"
+    },
+    {
+      "name": "Downloads_state_unknown",
+      "value": "󰄀  未知"
+    },
+    {
+      "name": "SearchInPage_noTab",
+      "value": "还没有打开网页 ┐(￣ヮ￣)┌"
+    },
+    {
+      "name": "WindowAlias_illegalChars",
+      "value": "不支持特殊字符：\\ / : * ? \" < > |"
+    },
+    {
+      "name": "Permission_reason_INTERNET",
+      "value": "让冲浪喵访问互联网！"
+    },
+    {
+      "name": "Permission_reason_DETECT_GESTURES",
+      "value": "让冲浪喵知道你正在使用哪只手，并自动响应优化布局！"
+    },
+    {
+      "name": "Permission_reason_WINDOW_TOPMOST",
+      "value": "让冲浪喵呈现在最顶层！"
+    },
+    {
+      "name": "Permission_reason_CAMERA",
+      "value": "让冲浪喵中的网页访问相机！"
+    },
+    {
+      "name": "Permission_reason_MICROPHONE",
+      "value": "让冲浪喵中的网页访问麦克风！"
+    },
+    {
+      "name": "Permission_reason_ACCELEROMETER",
+      "value": "让冲浪喵中的网页访问加速度传感器！"
+    },
+    {
+      "name": "Permission_reason_GYROSCOPE",
+      "value": "让冲浪喵中的网页访问陀螺仪！"
+    },
+    {
+      "name": "Permission_reason_SHORT_TERM_WRITE_IMAGEVIDEO",
+      "value": "让冲浪喵中的网页访问短时写入图片视频！"
+    },
+    {
+      "name": "Permission_reason_ACCESS_FIDO2_ONLINEAUTH",
+      "value": "让冲浪喵中的网页使用 FIDO2 在线认证！"
+    },
+    {
+      "name": "Permission_reason_ACCESS_CERT_MANAGER",
+      "value": "让冲浪喵中的网页访问设备证书管理器并通过在线认证！"
+    },
+    {
+      "name": "Permission_reason_READ_PASTEBOARD",
+      "value": "让冲浪喵中的网页读取剪贴板！"
+    },
+    {
+      "name": "Permission_reason_LOCATION",
+      "value": "让冲浪喵中的网页获取具体地理位置！"
+    },
+    {
+      "name": "Permission_reason_APPROXIMATELY_LOCATION",
+      "value": "让冲浪喵中的网页获取模糊地理位置！"
+    },
+    {
+      "name": "Permission_reason_LOCK_WINDOW_CURSOR",
+      "value": "让冲浪喵中的网页锁定窗口光标！"
+    },
+    {
+      "name": "Permission_reason_PRINT",
+      "value": "让冲浪喵中使用打印机！"
+    }
+  ]
+}

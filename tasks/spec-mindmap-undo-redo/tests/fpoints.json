@@ -1,0 +1,9 @@
+{
+  "bundle": "com.mindmap.harmony.demo",
+  "fpoints": [
+    { "id": "F1", "scenario": 1, "title": "初始显示共 6 个节点且撤销/重做禁用，加子级后共 7 个节点、撤销可用、重做禁用", "phases": ["MindMapUndoRedo#f1_countAndFirstEdit"] },
+    { "id": "F2", "scenario": 2, "title": "加子级+改名后连续撤销两步，逐步回退文字与节点，按钮可用态随之变化", "phases": ["MindMapUndoRedo#f2_multiStepUndo"] },
+    { "id": "F3", "scenario": 3, "title": "撤销两步后连续重做两步全部恢复，重做到底后重做禁用", "phases": ["MindMapUndoRedo#f3_redoToEnd"] },
+    { "id": "F4", "scenario": 4, "title": "删除整棵子树后撤销完整恢复层级与顺序，新编辑清空重做历史", "phases": ["MindMapUndoRedo#f4_undoSubtreeDelete"] }
+  ]
+}

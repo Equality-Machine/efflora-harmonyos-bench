@@ -1,0 +1,9 @@
+{
+  "bundle": "com.qingman.reader",
+  "fpoints": [
+    { "id": "F1", "scenario": 1, "title": "书架分组页新建分组后显示分组名与\"0 本\"", "phases": ["ShelfGroups#seed", "ShelfGroups#f1_create"] },
+    { "id": "F2", "scenario": 2, "title": "长按书选\"移动到分组\"后分组计数变为\"1 本\"", "phases": ["ShelfGroups#seed", "ShelfGroups#f2_move"] },
+    { "id": "F3", "scenario": 3, "title": "分组标签（全部/分组/未分组）筛选书架", "phases": ["ShelfGroups#seed", "ShelfGroups#f3_filter"] },
+    { "id": "F4", "scenario": 4, "title": "重命名分组后书的归属不变，重启后保持", "phases": ["ShelfGroups#seed", "ShelfGroups#f4_rename", "ShelfGroups#f4_verify"] }
+  ]
+}

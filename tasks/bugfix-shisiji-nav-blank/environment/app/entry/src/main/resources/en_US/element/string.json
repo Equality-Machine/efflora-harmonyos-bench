@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "Four Seasons Hub · 4 life-scene modules"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "Four Seasons atomic service"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "Four Seasons"
+    }
+  ]
+}

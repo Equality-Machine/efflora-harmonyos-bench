@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: >-
+  If you use this benchmark, please cite it using the following metadata.
+title: 'Efflora HarmonyOS Bench: Benchmarking Coding Agents on HarmonyOS App Development'
+authors:
+  - name: Efflora
+type: software
+repository-code: 'https://github.com/Equality-Machine/efflora-harmonyos-bench'
+abstract: >-
+  An open-source benchmark for evaluating AI coding agents on end-to-end
+  HarmonyOS app development. Tasks are built from real open-source HarmonyOS
+  projects pinned to specific commits, cover feature implementation, bug
+  fixing, and spec-driven development, and are verified by building the app
+  and running hidden unit and emulator UI tests. All tasks use the Harbor
+  task format.
+keywords:
+  - harmonyos
+  - arkts
+  - arkui
+  - benchmark
+  - coding-agent
+  - llm-evaluation
+license: Apache-2.0

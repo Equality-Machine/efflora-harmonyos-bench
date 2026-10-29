@@ -1,0 +1,420 @@
+diff --git a/entry/src/main/ets/common/DetailSheet.ets b/entry/src/main/ets/common/DetailSheet.ets
+deleted file mode 100644
+index b141649..0000000
+--- a/entry/src/main/ets/common/DetailSheet.ets
++++ /dev/null
+@@ -1,70 +0,0 @@
+-// 通用详情半模态壳体：大图区（Placeholder）→ 标题 + 右上角标 → 价格行(@BuilderParam priceLine) → 分割线 → 自定义正文(@BuilderParam body)
+-// 四模块详情弹层复用；餐厅的"规格选择"正文也注入 body，其点位与交互由页面自持。
+-
+-import { Placeholder } from './Placeholder';
+-import { DealBadge } from './DealBadge';
+-
+-// 顶层空构建器：@BuilderParam 的兜底默认值（不能引用 this）
+-@Builder
+-function emptySlot() {
+-}
+-
+-@Component
+-export struct DetailSheet {
+-  emoji: string = '';
+-  gradient: string[] = [];
+-  media: Resource | undefined = undefined;
+-  title: string = '';
+-  badgeText: string = '';      // 空则不显示角标
+-  badgeBg: string = '#E64545';
+-  showDivider: boolean = true;
+-  @BuilderParam priceLine: () => void = emptySlot;
+-  @BuilderParam body: () => void = emptySlot;
+-
+-  build() {
+-    Column() {
+-      // 大图区
+-      Placeholder({
+-        emoji: this.emoji,
+-        gradient: this.gradient,
+-        media: this.media,
+-        boxWidth: '100%',
+-        boxHeight: 200,
+-        corner: 0,
+-        emojiSize: 88
+-      })
+-
+-      Scroll() {
+-        Column({ space: 14 }) {
+-          // 标题 + 角标
+-          Row({ space: 8 }) {
+-            Text(this.title)
+-              .fontSize(24)
+-              .fontWeight(FontWeight.Bold)
+-              .fontColor('#211E1A')
+-            if (this.badgeText !== '') {
+-              DealBadge({ text: this.badgeText, bg: this.badgeBg, dia: 18, circle: true })
+-            }
+-          }
+-          .width('100%')
+-
+-          this.priceLine()
+-
+-          if (this.showDivider) {
+-            Divider()
+-              .color('#EFECE7')
+-          }
+-
+-          this.body()
+-        }
+-        .width('100%')
+-        .padding(20)
+-        .alignItems(HorizontalAlign.Start)
+-      }
+-      .layoutWeight(1)
+-      .scrollBar(BarState.Off)
+-    }
+-    .width('100%')
+-    .height('100%')
+-  }
+-}
+\ No newline at end of file
+diff --git a/entry/src/main/ets/common/SheetHero.ets b/entry/src/main/ets/common/SheetHero.ets
+new file mode 100644
+index 0000000..19ad3f3
+--- /dev/null
++++ b/entry/src/main/ets/common/SheetHero.ets
+@@ -0,0 +1,42 @@
++// 通用详情弹层"头部"：大图（Placeholder）+ 标题 + 右上角标。
++// 数据化组件（纯 props、无 @BuilderParam 槽位）——避免 bindSheet 弹窗内 @BuilderParam 代管父级 builder
++// 在二次渲染时 `this` 失效的运行时崩溃。正文（价格行/标签/规格/按钮）由各页面在自己的 sheet builder 里直连渲染。
++import { Placeholder } from './Placeholder';
++import { DealBadge } from './DealBadge';
++
++@Component
++export struct SheetHero {
++  emoji: string = '';
++  gradient: string[] = [];
++  media: Resource | undefined = undefined;
++  title: string = '';
++  badgeText: string = '';      // 空则不显示角标
++  badgeBg: string = '#E64545';
++
++  build() {
++    Column() {
++      Placeholder({
++        emoji: this.emoji,
++        gradient: this.gradient,
++        media: this.media,
++        boxWidth: '100%',
++        boxHeight: 200,
++        corner: 0,
++        emojiSize: 88
++      })
++
++      Row({ space: 8 }) {
++        Text(this.title)
++          .fontSize(24)
++          .fontWeight(FontWeight.Bold)
++          .fontColor('#211E1A')
++        if (this.badgeText !== '') {
++          DealBadge({ text: this.badgeText, bg: this.badgeBg, dia: 18, circle: true })
++        }
++      }
++      .width('100%')
++      .padding({ left: 20, right: 20, top: 16, bottom: 4 })
++    }
++    .width('100%')
++  }
++}
+\ No newline at end of file
+diff --git a/entry/src/main/ets/pages/modules/BookList.ets b/entry/src/main/ets/pages/modules/BookList.ets
+index 2c5d946..b0d4db8 100644
+--- a/entry/src/main/ets/pages/modules/BookList.ets
++++ b/entry/src/main/ets/pages/modules/BookList.ets
+@@ -7,7 +7,7 @@ import {
+ import { dayIndex, weekdayLabel, pickDaily } from '../../common/TimeRules';
+ import { Placeholder } from '../../common/Placeholder';
+ import { TagChip } from '../../common/TagChip';
+-import { DetailSheet } from '../../common/DetailSheet';
++import { SheetHero } from '../../common/SheetHero';
+ import { TimeDealBar } from '../../common/TimeDealBar';
+ 
+ const ACCENT = '#2E6B4F';       // 拾光书局 · 墨绿
+@@ -273,22 +273,47 @@ export struct BookList {
+ 
+   @Builder
+   bookSheet() {
+-    DetailSheet({
+-      emoji: bookEmoji(this.selected.imageKey),
+-      gradient: BOOK_GRADIENTS[this.selected.gradient],
+-      title: this.selected.title,
+-      badgeText: this.isTodayPick(this.selected) ? '荐' : '',
+-      badgeBg: ACCENT,
+-      priceLine: this.bookPriceLine,
+-      body: this.bookBody
+-    })
++    Column() {
++      SheetHero({
++        emoji: bookEmoji(this.selected.imageKey),
++        gradient: BOOK_GRADIENTS[this.selected.gradient],
++        title: this.selected.title,
++        badgeText: this.isTodayPick(this.selected) ? '荐' : '',
++        badgeBg: ACCENT
++      })
++
++      Scroll() {
++        Column({ space: 14 }) {
++          this.bookPriceLine()
++          Divider()
++            .color('#EFECE7')
++          this.bookBody()
++        }
++        .width('100%')
++        .padding(20)
++        .alignItems(HorizontalAlign.Start)
++      }
++      .layoutWeight(1)
++      .scrollBar(BarState.Off)
++    }
++    .width('100%')
++    .height('100%')
+   }
+ 
+   build() {
+     NavDestination() {
+       Column() {
+-        // 头部：书局品牌 + 每日荐书页入口
+-        Row() {
++        // 头部：返回 + 书局品牌 + 每日荐书入口
++        Row({ space: 10 }) {
++          Text('‹ 返回')
++            .fontSize(15)
++            .fontColor(ACCENT)
++            .padding({ left: 10, right: 10, top: 6, bottom: 6 })
++            .backgroundColor(ACCENT_SOFT)
++            .borderRadius(999)
++            .onClick(() => {
++              this.pathStack.pop();
++            })
+           Column({ space: 2 }) {
+             Text('拾光书局')
+               .fontSize(28)
+diff --git a/entry/src/main/ets/pages/modules/DiningList.ets b/entry/src/main/ets/pages/modules/DiningList.ets
+index 284b06d..b142b45 100644
+--- a/entry/src/main/ets/pages/modules/DiningList.ets
++++ b/entry/src/main/ets/pages/modules/DiningList.ets
+@@ -10,7 +10,7 @@ import { nowHour, hourLabel, pickHourly } from '../../common/TimeRules';
+ import { Placeholder } from '../../common/Placeholder';
+ import { TagChip } from '../../common/TagChip';
+ import { DealBadge } from '../../common/DealBadge';
+-import { DetailSheet } from '../../common/DetailSheet';
++import { SheetHero } from '../../common/SheetHero';
+ import { TimeDealBar } from '../../common/TimeDealBar';
+ 
+ // 生成某菜选项组的默认选择：单选预选默认项，多选默认全不选
+@@ -348,19 +348,33 @@ export struct DiningList {
+     .onClick(() => onTap())
+   }
+ 
+-  // 详情弹层：通用 DetailSheet 壳体（大图/标题/角标/价格行）+ 自定义正文（标签/介绍/规格选择）
++  // 详情弹层：数据化 SheetHero 头部 + 页面自绘正文（@BuilderParam 在弹窗内二次渲染有 this 失效的坑，故不代管）
+   @Builder
+   detailSheet() {
+-    DetailSheet({
+-      emoji: dishEmoji(this.currentDish.image),
+-      gradient: DISH_GRADIENTS[this.currentDish.gradient],
+-      media: dishMedia(this.currentDish.image),
+-      title: this.currentDish.name,
+-      badgeText: this.currentDish.isTodayDeal === true ? '惠' : '',
+-      showDivider: false,
+-      priceLine: this.detailPriceLine,
+-      body: this.detailBody
+-    })
++    Column() {
++      SheetHero({
++        emoji: dishEmoji(this.currentDish.image),
++        gradient: DISH_GRADIENTS[this.currentDish.gradient],
++        media: dishMedia(this.currentDish.image),
++        title: this.currentDish.name,
++        badgeText: this.currentDish.isTodayDeal === true ? '惠' : '',
++        badgeBg: '#E64545'
++      })
++
++      Scroll() {
++        Column({ space: 14 }) {
++          this.detailPriceLine()
++          this.detailBody()
++        }
++        .width('100%')
++        .padding(20)
++        .alignItems(HorizontalAlign.Start)
++      }
++      .layoutWeight(1)
++      .scrollBar(BarState.Off)
++    }
++    .width('100%')
++    .height('100%')
+   }
+ 
+   // 价格行（含划线原价 + 特惠省价 pill）
+@@ -442,8 +456,17 @@ export struct DiningList {
+   build() {
+     NavDestination() {
+       Column() {
+-        // 头部：店名 + 标语
+-        Row() {
++        // 头部：返回 + 店名 + 标语
++        Row({ space: 10 }) {
++          Text('‹ 返回')
++            .fontSize(15)
++            .fontColor('#FF6B35')
++            .padding({ left: 10, right: 10, top: 6, bottom: 6 })
++            .backgroundColor('#FFEADF')
++            .borderRadius(999)
++            .onClick(() => {
++              this.pathStack.pop();
++            })
+           Column({ space: 2 }) {
+             Text(STORE.name)
+               .fontSize(28)
+diff --git a/entry/src/main/ets/pages/modules/HotelList.ets b/entry/src/main/ets/pages/modules/HotelList.ets
+index 694a988..99801d5 100644
+--- a/entry/src/main/ets/pages/modules/HotelList.ets
++++ b/entry/src/main/ets/pages/modules/HotelList.ets
+@@ -8,7 +8,7 @@ import { nowHour, hourLabel, pickHourly } from '../../common/TimeRules';
+ import { formatPrice } from '../../common/Unit';
+ import { Placeholder } from '../../common/Placeholder';
+ import { TagChip } from '../../common/TagChip';
+-import { DetailSheet } from '../../common/DetailSheet';
++import { SheetHero } from '../../common/SheetHero';
+ import { TimeDealBar } from '../../common/TimeDealBar';
+ 
+ const ACCENT = '#1F4E79';       // 云栖酒店 · 深蓝
+@@ -301,22 +301,47 @@ export struct HotelList {
+ 
+   @Builder
+   roomSheet() {
+-    DetailSheet({
+-      emoji: roomEmoji(this.selected.imageKey),
+-      gradient: HOTEL_GRADIENTS[this.selected.gradient],
+-      title: this.selected.name,
+-      badgeText: this.isTodayPick(this.selected) ? '特价' : '',
+-      badgeBg: '#E64545',
+-      priceLine: this.roomPriceLine,
+-      body: this.roomBody
+-    })
++    Column() {
++      SheetHero({
++        emoji: roomEmoji(this.selected.imageKey),
++        gradient: HOTEL_GRADIENTS[this.selected.gradient],
++        title: this.selected.name,
++        badgeText: this.isTodayPick(this.selected) ? '特价' : '',
++        badgeBg: '#E64545'
++      })
++
++      Scroll() {
++        Column({ space: 14 }) {
++          this.roomPriceLine()
++          Divider()
++            .color('#EFECE7')
++          this.roomBody()
++        }
++        .width('100%')
++        .padding(20)
++        .alignItems(HorizontalAlign.Start)
++      }
++      .layoutWeight(1)
++      .scrollBar(BarState.Off)
++    }
++    .width('100%')
++    .height('100%')
+   }
+ 
+   build() {
+     NavDestination() {
+       Column() {
+-        // 头部：品牌 + 全景看房入口
+-        Row() {
++        // 头部：返回 + 品牌 + 全景看房入口
++        Row({ space: 10 }) {
++          Text('‹ 返回')
++            .fontSize(15)
++            .fontColor(ACCENT)
++            .padding({ left: 10, right: 10, top: 6, bottom: 6 })
++            .backgroundColor(ACCENT_SOFT)
++            .borderRadius(999)
++            .onClick(() => {
++              this.pathStack.pop();
++            })
+           Column({ space: 2 }) {
+             Text('云栖酒店')
+               .fontSize(28)
+diff --git a/entry/src/main/ets/pages/modules/PetList.ets b/entry/src/main/ets/pages/modules/PetList.ets
+index 272bced..abfbf76 100644
+--- a/entry/src/main/ets/pages/modules/PetList.ets
++++ b/entry/src/main/ets/pages/modules/PetList.ets
+@@ -7,7 +7,7 @@ import {
+ import { dayIndex, weekdayLabel, pickDaily } from '../../common/TimeRules';
+ import { Placeholder } from '../../common/Placeholder';
+ import { TagChip } from '../../common/TagChip';
+-import { DetailSheet } from '../../common/DetailSheet';
++import { SheetHero } from '../../common/SheetHero';
+ import { TimeDealBar } from '../../common/TimeDealBar';
+ 
+ const ACCENT = '#E86A92';       // 暖爪之家 · 桃粉
+@@ -254,22 +254,47 @@ export struct PetList {
+ 
+   @Builder
+   petSheet() {
+-    DetailSheet({
+-      emoji: petEmoji(this.selected.imageKey),
+-      gradient: PET_GRADIENTS[this.selected.gradient],
+-      title: this.selected.name + ' · ' + this.selected.breed,
+-      badgeText: this.isTodayStar(this.selected) ? '之星' : '',
+-      badgeBg: ACCENT,
+-      priceLine: this.petPriceLine,
+-      body: this.petBody
+-    })
++    Column() {
++      SheetHero({
++        emoji: petEmoji(this.selected.imageKey),
++        gradient: PET_GRADIENTS[this.selected.gradient],
++        title: this.selected.name + ' · ' + this.selected.breed,
++        badgeText: this.isTodayStar(this.selected) ? '之星' : '',
++        badgeBg: ACCENT
++      })
++
++      Scroll() {
++        Column({ space: 14 }) {
++          this.petPriceLine()
++          Divider()
++            .color('#EFECE7')
++          this.petBody()
++        }
++        .width('100%')
++        .padding(20)
++        .alignItems(HorizontalAlign.Start)
++      }
++      .layoutWeight(1)
++      .scrollBar(BarState.Off)
++    }
++    .width('100%')
++    .height('100%')
+   }
+ 
+   build() {
+     NavDestination() {
+       Column() {
+-        // 头部：救助站品牌 + 登记入口
+-        Row() {
++        // 头部：返回 + 救助站品牌 + 登记入口
++        Row({ space: 10 }) {
++          Text('‹ 返回')
++            .fontSize(15)
++            .fontColor(ACCENT)
++            .padding({ left: 10, right: 10, top: 6, bottom: 6 })
++            .backgroundColor(ACCENT_SOFT)
++            .borderRadius(999)
++            .onClick(() => {
++              this.pathStack.pop();
++            })
+           Column({ space: 2 }) {
+             Text('暖爪之家')
+               .fontSize(28)

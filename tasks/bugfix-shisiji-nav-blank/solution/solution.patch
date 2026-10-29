@@ -1,0 +1,483 @@
+diff --git a/entry/src/main/ets/common/NavBus.ets b/entry/src/main/ets/common/NavBus.ets
+new file mode 100644
+index 0000000..3e19f9f
+--- /dev/null
++++ b/entry/src/main/ets/common/NavBus.ets
+@@ -0,0 +1,8 @@
++// 导航目标总线：四时集首页 → ModuleHub 的单向传参（页面跳转前写入，渲染只读）。
++// 作用：把"四个模块"折叠为同一个 branch-1 路由 'ModuleHub'，规避本 SDK 冷启动 Navigation
++//       首个 push 只对 PageMap 第 1 分支稳定的 bug（凡首次直推晚分支就会建空节点 → 白屏）。
++export let moduleTarget: string = 'dining';
++
++export function setModuleTarget(route: string): void {
++  moduleTarget = route;
++}
+\ No newline at end of file
+diff --git a/entry/src/main/ets/common/Router.ets b/entry/src/main/ets/common/Router.ets
+new file mode 100644
+index 0000000..c2c516c
+--- /dev/null
++++ b/entry/src/main/ets/common/Router.ets
+@@ -0,0 +1,5 @@
++// 全局导航栈单例：四时集全应用共用一个 NavPathStack。
++// 为什么不用 @Provide/@Consume 传栈：冷启动首帧 Navigation 会重赋 @Provide 值，触发
++// "pathStack has changed during render"，继而导致首个 NavDestination 路由解析失败建空节点（页面空白）。
++// 单例让栈对象唯一稳定，根因规避（@Provide/@Consume 竞态）也最简单。
++export const MAIN_STACK: NavPathStack = new NavPathStack();
+\ No newline at end of file
+diff --git a/entry/src/main/ets/pages/Index.ets b/entry/src/main/ets/pages/Index.ets
+index a1b4386..29c9dba 100644
+--- a/entry/src/main/ets/pages/Index.ets
++++ b/entry/src/main/ets/pages/Index.ets
+@@ -1,10 +1,11 @@
+ // 四时集 · 首页（@Entry · Navigation 栈根）
+-// 4 宫格入口 → 四个生活场景；PageMap 集中路由表（新增模块只加一个分支）
++// 首页是 Navigation 根内容（4 宫格）；四模块统一走 branch-1 目的地 ModuleHub（见 NavBus 注释，
++// 规避本 SDK 冷启动 Navigation 首个 push 只对第 1 分支稳定的空节点 bug）。第二页场景（店内大屏/全景/表单/荐书）
++// 均为"已在栈上时的再次 push"，稳定。
+ import { ModuleTheme, LAUNCHERS } from '../common/Theme';
+-import { DiningList } from './modules/DiningList';
+-import { HotelList } from './modules/HotelList';
+-import { PetList } from './modules/PetList';
+-import { BookList } from './modules/BookList';
++import { MAIN_STACK } from '../common/Router';
++import { setModuleTarget } from '../common/NavBus';
++import { ModuleHub } from './ModuleHub';
+ import { StoreDisplay } from '../scenes/StoreDisplay';
+ import { RoomTour } from '../scenes/RoomTour';
+ import { AdoptForm } from '../scenes/AdoptForm';
+@@ -13,11 +14,11 @@ import { DailyPick } from '../scenes/DailyPick';
+ @Entry
+ @Component
+ struct Index {
+-  @Provide pathStack: NavPathStack = new NavPathStack();
+ 
+   openLauncher(l: ModuleTheme): void {
+     if (l.ready) {
+-      this.pathStack.pushPathByName(l.route, null);
++      setModuleTarget(l.route);
++      MAIN_STACK.pushPathByName('ModuleHub', null);
+     } else {
+       try {
+         this.getUIContext().getPromptAction().showToast({
+@@ -92,37 +93,28 @@ struct Index {
+     .onClick(() => this.openLauncher(l))
+   }
+ 
+-  // 页面映射表：新增模块只加一个分支
++  // 页面映射表：ModuleHub 必须是第 1 分支（冷启动首个 push 唯一稳定）；其余为二次 push
+   @Builder
+   PageMap(name: string) {
+-    if (name === 'DiningList') {
+-      DiningList()
++    if (name === 'ModuleHub') {
++      ModuleHub()
+     }
+     if (name === 'StoreDisplay') {
+       StoreDisplay()
+     }
+-    if (name === 'HotelList') {
+-      HotelList()
+-    }
+     if (name === 'RoomTour') {
+       RoomTour()
+     }
+-    if (name === 'PetList') {
+-      PetList()
+-    }
+     if (name === 'AdoptForm') {
+       AdoptForm()
+     }
+-    if (name === 'BookList') {
+-      BookList()
+-    }
+     if (name === 'DailyPick') {
+       DailyPick()
+     }
+   }
+ 
+   build() {
+-    Navigation(this.pathStack) {
++    Navigation(MAIN_STACK) {
+       Column() {
+         // 头部：四时集 + 标语
+         Column({ space: 4 }) {
+diff --git a/entry/src/main/ets/pages/ModuleHub.ets b/entry/src/main/ets/pages/ModuleHub.ets
+new file mode 100644
+index 0000000..e8d61db
+--- /dev/null
++++ b/entry/src/main/ets/pages/ModuleHub.ets
+@@ -0,0 +1,37 @@
++// 模块枢纽（branch-1 目的地）：四个模块的列表页统一从这里进入。
++// 首页只 push 'ModuleHub'（PageMap 第 1 分支，冷启动首个 push 唯一稳定），
++// 具体打开哪个模块由 moduleTarget 决定 → 在本组件内用普通 if 条件渲染（非 navDestination builder 分支），规避空节点 bug。
++import { moduleTarget } from '../common/NavBus';
++import { MAIN_STACK } from '../common/Router';
++import { DiningList } from './modules/DiningList';
++import { HotelList } from './modules/HotelList';
++import { PetList } from './modules/PetList';
++import { BookList } from './modules/BookList';
++
++@Component
++export struct ModuleHub {
++  @State route: string = 'dining';
++
++  aboutToAppear(): void {
++    this.route = moduleTarget;
++  }
++
++  build() {
++    NavDestination() {
++      if (this.route === 'HotelList') {
++        HotelList()
++      } else if (this.route === 'PetList') {
++        PetList()
++      } else if (this.route === 'BookList') {
++        BookList()
++      } else {
++        DiningList()
++      }
++    }
++    .hideTitleBar(true)
++    .onBackPressed(() => {
++      MAIN_STACK.pop();
++      return true;
++    })
++  }
++}
+\ No newline at end of file
+diff --git a/entry/src/main/ets/pages/modules/BookList.ets b/entry/src/main/ets/pages/modules/BookList.ets
+index b0d4db8..8064081 100644
+--- a/entry/src/main/ets/pages/modules/BookList.ets
++++ b/entry/src/main/ets/pages/modules/BookList.ets
+@@ -1,5 +1,6 @@
+ // 模块四 · 书单书架「拾光书局」列表页（NavDestination）
+ // 双列 Grid + Rating 星级 + Progress 进度 + 每日荐书活内容条(按天) + 详情 DetailSheet + 「每日荐书」专属页入口
++import { MAIN_STACK } from '../../common/Router';
+ import {
+   Book, BookCategory, BOOK_CATEGORIES, BOOKS, BOOK_GRADIENTS, bookEmoji,
+   filterBooks, recommendPool
+@@ -24,7 +25,6 @@ export struct BookList {
+   @State dayLabel: string = '每日荐书 · ' + weekdayLabel();
+   @State selected: Book = BOOKS[0];
+   @State showDetail: boolean = false;
+-  @Consume pathStack: NavPathStack;
+ 
+   onTick(value: number): void {
+     this.todayBooks = pickDaily(recommendPool(), dayIndex(), 1);
+@@ -51,7 +51,7 @@ export struct BookList {
+   }
+ 
+   openDailyPick(): void {
+-    this.pathStack.pushPathByName('DailyPick', null);
++    MAIN_STACK.pushPathByName('DailyPick', null);
+   }
+ 
+   @Builder
+@@ -312,7 +312,7 @@ export struct BookList {
+             .backgroundColor(ACCENT_SOFT)
+             .borderRadius(999)
+             .onClick(() => {
+-              this.pathStack.pop();
++              MAIN_STACK.pop();
+             })
+           Column({ space: 2 }) {
+             Text('拾光书局')
+@@ -384,7 +384,7 @@ export struct BookList {
+     .title('拾光书局')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }
+diff --git a/entry/src/main/ets/pages/modules/DiningList.ets b/entry/src/main/ets/pages/modules/DiningList.ets
+index b142b45..a8a24fd 100644
+--- a/entry/src/main/ets/pages/modules/DiningList.ets
++++ b/entry/src/main/ets/pages/modules/DiningList.ets
+@@ -1,6 +1,7 @@
+ // 模块一 · 餐厅点餐「鲜小馆」菜单页（NavDestination，由四时集首页 push 进入）
+ // 形态① 招牌轮播 Swiper · ② 菜系 Tabs+菜品列表 · ③ 详情 DetailSheet(通用壳体+规格正文) · ④ 今日特惠 TimeDealBar(时间驱动)
+ // 抽壳说明：缩略图/标签/角标/详情壳体/活内容条均改用 common/ 通用件，接口与行为不变。
++import { MAIN_STACK } from '../../common/Router';
+ import {
+   Banner, Dish, DishCategory, DishOption, DishOptionGroup, STORE, DISH_GRADIENTS, CATEGORIES,
+   SIGNATURE_BANNERS, dishById, dishEmoji, dishMedia, formatPrice, dealDishes, DINING_SLOTS
+@@ -44,7 +45,6 @@ export struct DiningList {
+   @State currentDish: Dish = CATEGORIES[0].dishes[0];
+   @State showDetail: boolean = false;
+   @State chosenByGroup: string[][] = [];
+-  @Consume pathStack: NavPathStack;
+ 
+   // TextClock 每分钟回调：重算当前小时的特惠集合与档位
+   onTickDeals(value: number): void {
+@@ -465,7 +465,7 @@ export struct DiningList {
+             .backgroundColor('#FFEADF')
+             .borderRadius(999)
+             .onClick(() => {
+-              this.pathStack.pop();
++              MAIN_STACK.pop();
+             })
+           Column({ space: 2 }) {
+             Text(STORE.name)
+@@ -501,7 +501,7 @@ export struct DiningList {
+           slotLabel: this.slotLabel,
+           actionText: '店内大屏',
+           onAction: () => {
+-            this.pathStack.pushPathByName('StoreDisplay', null)
++            MAIN_STACK.pushPathByName('StoreDisplay', null)
+           },
+           onTick: (v: number) => this.onTickDeals(v),
+           content: this.dealStripContent
+@@ -537,7 +537,7 @@ export struct DiningList {
+     .title('鲜小馆')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }
+diff --git a/entry/src/main/ets/pages/modules/HotelList.ets b/entry/src/main/ets/pages/modules/HotelList.ets
+index 99801d5..8b905e8 100644
+--- a/entry/src/main/ets/pages/modules/HotelList.ets
++++ b/entry/src/main/ets/pages/modules/HotelList.ets
+@@ -1,5 +1,6 @@
+ // 模块二 · 酒店房型「云栖酒店」列表页（NavDestination）
+ // Grid 宫格房型 + 房型/价格双筛选 + 今日特价活内容条(TimeDealBar) + 详情 DetailSheet + 全景看房入口
++import { MAIN_STACK } from '../../common/Router';
+ import {
+   Room, TypeFilter, PriceBand, TYPE_FILTERS, PRICE_BANDS, ROOMS, HOTEL_GRADIENTS, roomEmoji,
+   filterRooms, specialPool, HOTEL_SLOTS, setTourRoomId
+@@ -25,7 +26,6 @@ export struct HotelList {
+   @State slotLabel: string = hourLabel(HOTEL_SLOTS, nowHour());
+   @State selected: Room = ROOMS[0];
+   @State showDetail: boolean = false;
+-  @Consume pathStack: NavPathStack;
+ 
+   onTickSpecials(value: number): void {
+     const h = new Date(value).getHours();
+@@ -61,7 +61,7 @@ export struct HotelList {
+   // 全景看房：写入目标房型后再进沉浸页
+   openTour(id: string): void {
+     setTourRoomId(id);
+-    this.pathStack.pushPathByName('RoomTour', null);
++    MAIN_STACK.pushPathByName('RoomTour', null);
+   }
+ 
+   openFeaturedTour(): void {
+@@ -340,7 +340,7 @@ export struct HotelList {
+             .backgroundColor(ACCENT_SOFT)
+             .borderRadius(999)
+             .onClick(() => {
+-              this.pathStack.pop();
++              MAIN_STACK.pop();
+             })
+           Column({ space: 2 }) {
+             Text('云栖酒店')
+@@ -421,7 +421,7 @@ export struct HotelList {
+     .title('云栖酒店')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }
+diff --git a/entry/src/main/ets/pages/modules/PetList.ets b/entry/src/main/ets/pages/modules/PetList.ets
+index abfbf76..636091b 100644
+--- a/entry/src/main/ets/pages/modules/PetList.ets
++++ b/entry/src/main/ets/pages/modules/PetList.ets
+@@ -1,5 +1,6 @@
+ // 模块三 · 宠物领养「暖爪之家」列表页（NavDestination）
+ // WaterFlow 瀑布流（高度错落）+ 物种筛选 + 本周之星活内容条(按天) + 详情 DetailSheet + 领养申请入口
++import { MAIN_STACK } from '../../common/Router';
+ import {
+   Pet, SpeciesFilter, SPECIES_FILTERS, PETS, PET_GRADIENTS, petEmoji,
+   filterPets, starPool, setAdoptPetId
+@@ -33,7 +34,6 @@ export struct PetList {
+   @State starLabel: string = '本周之星 · ' + weekdayLabel();
+   @State selected: Pet = PETS[0];
+   @State showDetail: boolean = false;
+-  @Consume pathStack: NavPathStack;
+ 
+   onTickStars(value: number): void {
+     // 以"天"为单位轮换（分钟级回调触发后重算；同一天内稳定）
+@@ -64,11 +64,11 @@ export struct PetList {
+   // 打开领养申请表：可带意向宠物
+   openAdopt(p: Pet): void {
+     setAdoptPetId(p.id);
+-    this.pathStack.pushPathByName('AdoptForm', null);
++    MAIN_STACK.pushPathByName('AdoptForm', null);
+   }
+ 
+   openGenericAdopt(): void {
+-    this.pathStack.pushPathByName('AdoptForm', null);
++    MAIN_STACK.pushPathByName('AdoptForm', null);
+   }
+ 
+   @Builder
+@@ -293,7 +293,7 @@ export struct PetList {
+             .backgroundColor(ACCENT_SOFT)
+             .borderRadius(999)
+             .onClick(() => {
+-              this.pathStack.pop();
++              MAIN_STACK.pop();
+             })
+           Column({ space: 2 }) {
+             Text('暖爪之家')
+@@ -365,7 +365,7 @@ export struct PetList {
+     .title('暖爪之家')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }
+diff --git a/entry/src/main/ets/scenes/AdoptForm.ets b/entry/src/main/ets/scenes/AdoptForm.ets
+index 482948e..a4f097d 100644
+--- a/entry/src/main/ets/scenes/AdoptForm.ets
++++ b/entry/src/main/ets/scenes/AdoptForm.ets
+@@ -1,5 +1,6 @@
+ // 暖爪之家 · 专属第二页：领养申请表单
+ // 全案例唯一的"输入型"页面：TextInput + RadioGroup + Select + 必填校验 + Toast 提交反馈（假提交）。
++import { MAIN_STACK } from '../common/Router';
+ import { Pet, PETS, adoptPetId } from '../model/PetData';
+ 
+ const ACCENT = '#E86A92';
+@@ -18,7 +19,6 @@ export struct AdoptForm {
+   @State phone: string = '';
+   @State house: string = 'own';       // own | rent | share
+   @State expIdx: number = 0;          // 养宠经验 Select 选中索引
+-  @Consume pathStack: NavPathStack;
+ 
+   aboutToAppear(): void {
+     this.petOptions = PETS.map((p: Pet): SelectOption => ({ value: p.name }));
+@@ -54,7 +54,7 @@ export struct AdoptForm {
+     }
+     this.toast('申请已提交，暖爪之家将回访你 📞');
+     // 假提交：返回列表页，不落地数据
+-    this.pathStack.pop();
++    MAIN_STACK.pop();
+   }
+ 
+   @Builder
+@@ -239,7 +239,7 @@ export struct AdoptForm {
+     .title('领养申请')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }
+diff --git a/entry/src/main/ets/scenes/DailyPick.ets b/entry/src/main/ets/scenes/DailyPick.ets
+index fff0bf2..1bcad18 100644
+--- a/entry/src/main/ets/scenes/DailyPick.ets
++++ b/entry/src/main/ets/scenes/DailyPick.ets
+@@ -1,5 +1,6 @@
+ // 拾光书局 · 专属第二页：每日荐书
+ // 墨绿沉浸页：今日 1 本荐书大卡（与列表页活内容条用同一个 pickDaily —— 同源联动），星级 + 阅读进度环 + 摘抄。
++import { MAIN_STACK } from '../common/Router';
+ import { Book, BOOK_GRADIENTS, bookEmoji, recommendPool } from '../model/BookData';
+ import { dayIndex, weekdayLabel, pickDaily } from '../common/TimeRules';
+ import { Placeholder } from '../common/Placeholder';
+@@ -11,7 +12,6 @@ const GOLD = '#E8C877';
+ @Component
+ export struct DailyPick {
+   @State book: Book = pickDaily(recommendPool(), dayIndex(), 1)[0];
+-  @Consume pathStack: NavPathStack;
+ 
+   read(): void {
+     try {
+@@ -35,7 +35,7 @@ export struct DailyPick {
+             .backgroundColor('#244A38')
+             .borderRadius(999)
+             .onClick(() => {
+-              this.pathStack.pop();
++              MAIN_STACK.pop();
+             })
+           Blank()
+           Text('每日荐书 · ' + weekdayLabel())
+@@ -155,7 +155,7 @@ export struct DailyPick {
+     .title('每日荐书')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }
+diff --git a/entry/src/main/ets/scenes/RoomTour.ets b/entry/src/main/ets/scenes/RoomTour.ets
+index 6f75e5c..c821160 100644
+--- a/entry/src/main/ets/scenes/RoomTour.ets
++++ b/entry/src/main/ets/scenes/RoomTour.ets
+@@ -1,5 +1,6 @@
+ // 云栖酒店 · 专属第二页：全景看房
+ // 全屏沉浸深蓝页：慢速轮播同一间房的多角度"景别"（emoji + 渐变占位），验收"换场景即换产品"。
++import { MAIN_STACK } from '../common/Router';
+ import {
+   Room, ROOMS, HOTEL_GRADIENTS, roomEmoji, roomById, specialPool, HOTEL_SLOTS, tourRoomId
+ } from '../model/HotelData';
+@@ -11,7 +12,6 @@ const GOLD = '#FFC069';
+ 
+ @Component
+ export struct RoomTour {
+-  @Consume pathStack: NavPathStack;
+   @State room: Room = ROOMS[0];
+   @State slotLabel: string = hourLabel(HOTEL_SLOTS, nowHour());
+ 
+@@ -79,7 +79,7 @@ export struct RoomTour {
+             .backgroundColor('#1F3A52')
+             .borderRadius(999)
+             .onClick(() => {
+-              this.pathStack.pop();
++              MAIN_STACK.pop();
+             })
+           Blank()
+           Text('全景看房 · ' + this.slotLabel)
+@@ -153,7 +153,7 @@ export struct RoomTour {
+     .title('全景看房')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }
+diff --git a/entry/src/main/ets/scenes/StoreDisplay.ets b/entry/src/main/ets/scenes/StoreDisplay.ets
+index c7dde2b..c42acbf 100644
+--- a/entry/src/main/ets/scenes/StoreDisplay.ets
++++ b/entry/src/main/ets/scenes/StoreDisplay.ets
+@@ -1,10 +1,10 @@
+ // 第二页：店内大屏轮播页（NavDestination）
+ // 复用菜单态数据与今日特惠逻辑 —— "同一份菜单，第二种呈现"：全屏深底、慢速大轮播。
++import { MAIN_STACK } from '../common/Router';
+ import { Banner, Dish, SIGNATURE_BANNERS, dishById, dishEmoji, dishMedia, formatPrice, dealDishes } from '../model/DiningData';
+ 
+ @Component
+ export struct StoreDisplay {
+-  @Consume pathStack: NavPathStack;
+   private deals: Dish[] = dealDishes();
+ 
+   @Builder
+@@ -80,7 +80,7 @@ export struct StoreDisplay {
+             .backgroundColor('#2A211C')
+             .borderRadius(999)
+             .onClick(() => {
+-              this.pathStack.pop();
++              MAIN_STACK.pop();
+             })
+           Blank()
+           Text('店内大屏 · 招牌菜轮播')
+@@ -153,7 +153,7 @@ export struct StoreDisplay {
+     .title('店内大屏')
+     .hideTitleBar(true)
+     .onBackPressed(() => {
+-      this.pathStack.pop();
++      MAIN_STACK.pop();
+       return true;
+     })
+   }

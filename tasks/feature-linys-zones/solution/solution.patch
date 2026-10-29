@@ -1,0 +1,1052 @@
+diff --git a/entry/src/main/ets/catstypicalframework/flows.ets b/entry/src/main/ets/catstypicalframework/flows.ets
+index 58b408f..a2d5581 100644
+--- a/entry/src/main/ets/catstypicalframework/flows.ets
++++ b/entry/src/main/ets/catstypicalframework/flows.ets
+@@ -95,7 +95,11 @@ export function earlyOnCreate(context: Context, launchWant: Want) {
+   }
+ 
+   // Window private hosts
+-  AppStorageV2.connect(meowUiHost, `meowUiHost_${myWindowId}`, () => new meowUiHost(launchWant, myWindowId, `${context.filesDir}/continues/${myWindowId}`));
++  // myUi
++  const workingDir = launchWant.parameters?.zoneAlias ? `${context.filesDir}/zones/${launchWant.parameters?.zoneAlias}` : `${context.filesDir}/continues/${myWindowId}`;
++  AppStorageV2.connect(meowUiHost, `meowUiHost_${myWindowId}`, () => new meowUiHost(launchWant, myWindowId, workingDir))!;
++
++  // Other
+   AppStorageV2.connect(meowDialogManager, `meowDialogManager_${myWindowId}`, () => new meowDialogManager());
+   AppStorageV2.connect(meowMisc, `meowMisc_${myWindowId}`, () => new meowMisc());
+   AppStorageV2.connect(meowAvoid, `meowAvoid_${myWindowId}`, () => new meowAvoid());
+@@ -133,6 +137,7 @@ export async function earlyOnWindowStageCreate(context: Context) {
+   await ensureDirectoryExist(`${filesDir}/faultlogs`); // fault logs
+   await ensureDirectoryExist(`${filesDir}/history`); // History chunk files
+   await ensureDirectoryExist(`${filesDir}/history-index`); // History index files
++  await ensureDirectoryExist(`${filesDir}/zones`); // Zones
+   // await ensureDirectoryExist(`${tempDir}/dragdrop-temp`); // Drag drop temps
+ 
+   // Continue
+@@ -219,7 +224,13 @@ export function onLoadContent(windowStage: window.WindowStage, windowObj: window
+   const myUi: meowUiHost = AppStorageV2.connect(meowUiHost, `meowUiHost_${myWindowId}`)!;
+   myUi.windowStage = windowStage;
+   myUi.windowObj = windowObj;
+-  myUi.windowAlias = defaultNewWindowAlias(); // Automatically grab the alias last time set.
++  if (myUi.isZone) {
++    // Get from want params.
++    myUi.windowAlias = myUi.launchWant.parameters?.zoneAlias as string || '';
++  } else {
++    // Automatically grab the alias last time set. This has to be here instead of earlier processes because it requires the Settings to be initialized.
++    myUi.windowAlias = defaultNewWindowAlias();
++  }
+   myUi.searchUnifyResult.url = concatSearchWithEngine('').result;
+ 
+   // Init myLayout
+@@ -277,7 +288,7 @@ export function onLoadContent(windowStage: window.WindowStage, windowObj: window
+ 
+   // Delayed execution, reduce launch time.
+   setTimeout(() => {
+-    // Tab states
++    // Zones and tab states
+     myUi.initWorkingDir().then(() => {
+       onWant(myUi.launchWant, wantSource.ONCREATE); // Want
+     });
+diff --git a/entry/src/main/ets/catstypicalframework/utils/storage.ets b/entry/src/main/ets/catstypicalframework/utils/storage.ets
+index 0a97a91..a07b649 100644
+--- a/entry/src/main/ets/catstypicalframework/utils/storage.ets
++++ b/entry/src/main/ets/catstypicalframework/utils/storage.ets
+@@ -240,6 +240,19 @@ export async function saveHybrid(fullFilePath: string, content: string | ArrayBu
+   }
+ }
+ 
++/**
++ * Rename a folder.
++ * @param folderPath The source path.
++ * @param newPath The destination path.
++ */
++export async function renameFolder(folderPath: string, newPath: string) {
++  await fileIo.rename(folderPath, newPath)
++    .catch((e: BusinessError) => {
++      console.error(`[renameFolder] rename folder ${folderPath} to ${newPath} failed: ${e}`);
++    });
++  console.info(`[renameFolder] rename folder ${folderPath} to ${newPath} succeed`);
++}
++
+ /**
+  * Save an image to album.
+  * @param context The common.UIAbilityContext.
+@@ -360,6 +373,53 @@ export async function dirCopy(fullSourcePath: string, destParentFolderPath: stri
+   }
+ }
+ 
++/**
++ * Move a directory.
++ * @param fullSourcePath The source path.
++ * @param destParentFolderPath The destination folder path.
++ * @param overwrite Whether to overwrite the destination file if it exists.
++ * @returns true if succeed, false if failed, undefined if the file exists but not to overwrite.
++ */
++export async function dirMove(fullSourcePath: string, destParentFolderPath: string, overwrite: boolean) {
++  // Check source
++  const sourceName = fileNameOfPath(fullSourcePath);
++
++  try {
++    if (!(await fileIo.access(fullSourcePath))) {
++      console.error(`[dirMove] dirMove(${fullSourcePath}, ${destParentFolderPath}, ${overwrite}) test access failed: source dir ${fullSourcePath} doesn't exist`);
++      return false;
++    }
++  } catch (e) {
++    console.error(`[dirMove] dirMove(${fullSourcePath}, ${destParentFolderPath}, ${overwrite}) test source access failed: ${e}`);
++  }
++
++  // Check destination
++  try {
++    if (await fileIo.access(`${destParentFolderPath}/${sourceName}`)) {
++      if (!overwrite) {
++        return undefined;
++      } else {
++        // Overwrite
++        await fileIo.rmdir(`${destParentFolderPath}/${sourceName}`);
++        await fileIo.mkdir(`${destParentFolderPath}/${sourceName}`);
++        console.warn(`[dirMove] dir ${destParentFolderPath}/${sourceName} overwritten`);
++      }
++    }
++  } catch (e) {
++    console.error(`[dirMove] dirMove(${fullSourcePath}, ${destParentFolderPath}, ${overwrite}) test destination accessSync failed: ${e}`);
++  }
++
++  // Copy
++  try {
++    await fileIo.moveDir(fullSourcePath, destParentFolderPath);
++    console.info(`[dirMove] dir ${fullSourcePath} moved to ${destParentFolderPath}`);
++    return true;
++  } catch (e) {
++    console.error(`[dirMove] dirMove(${fullSourcePath}, ${destParentFolderPath}, ${overwrite}) failed: ${e}`);
++    return false;
++  }
++}
++
+ /**
+  * Append a string to the end of a file.
+  * @param filePath The file path.
+diff --git a/entry/src/main/ets/components/parts/Homepage/frame/MeowTitleTop.ets b/entry/src/main/ets/components/parts/Homepage/frame/MeowTitleTop.ets
+index 244d6f2..27094a0 100644
+--- a/entry/src/main/ets/components/parts/Homepage/frame/MeowTitleTop.ets
++++ b/entry/src/main/ets/components/parts/Homepage/frame/MeowTitleTop.ets
+@@ -2,6 +2,8 @@ import lazy { common } from '@kit.AbilityKit';
+ import { meowLayout } from '../../../../catstypicalframework/hosts/meowLayout';
+ import { windowTopAvoidLeft, windowTopAvoidRight } from '../../../../catstypicalframework/utils/ui';
+ import { meowTabsBunch } from '../../../../hosts/app/tabs/classes/meowTabsBunch';
++import lazy { openDialogRequestType } from '../../../../hosts/system/dialogs/classes/meowDialogManager';
++import lazy { requestDialogOnMostRecent } from '../../../../hosts/system/dialogs/scripts/dialog';
+ import { meowAppHost } from '../../../../hosts/system/windows/classes/meowAppHost';
+ import { meowUiHost } from '../../../../hosts/system/windows/classes/meowUiHost';
+ import lazy { newWindow } from '../../../../hosts/system/windows/scripts/multiwindows';
+@@ -10,7 +12,7 @@ import { MooTextModifier } from '../../../common/MooTextModifier';
+ import { showWindowTitle, windowTitleOnAddressBar, windowTitlePosition } from '../../../settings';
+ 
+ /**
+- * The window top bar. Holds the buttons on window top, as well as the name of window.
++ * The window top bar. Holds the buttons on window top, as well as the name of window / zone.
+  *
+  * Note that if the window is not in free window mode, the extra buttons won't be displayed.
+  */
+@@ -23,6 +25,19 @@ export function MeowTitleTop(
+   context: UIContext
+ ) {
+   Row({ space: 10 }) {
++    // left button(s)
++    if (myApp.freeWindow) {
++      if (myUi.isZone) {
++        MooSymbolButtonSmall($r('sys.symbol.briefcase'), () => {
++          requestDialogOnMostRecent(openDialogRequestType.ZONES);
++        }, HitTestMode.BLOCK_HIERARCHY);
++      } else {
++        MooSymbolButtonSmall($r('sys.symbol.square_stack_3d'), () => {
++          requestDialogOnMostRecent(openDialogRequestType.ZONES);
++        }, HitTestMode.BLOCK_HIERARCHY);
++      }
++    }
++
+     // Window Title Text
+     Text(showWindowTitle(myLayout) && !windowTitleOnAddressBar() ? `${myTabs.currentTab?.title || 'Meow'}｜${myUi.windowAlias}` : '')
+       .attributeModifier(new MooTextModifier())
+diff --git a/entry/src/main/ets/components/parts/Homepage/more/MeowWindowInfoBar.ets b/entry/src/main/ets/components/parts/Homepage/more/MeowWindowInfoBar.ets
+index 3074b4e..c1fc86d 100644
+--- a/entry/src/main/ets/components/parts/Homepage/more/MeowWindowInfoBar.ets
++++ b/entry/src/main/ets/components/parts/Homepage/more/MeowWindowInfoBar.ets
+@@ -2,14 +2,20 @@ import lazy { common } from "@kit.AbilityKit";
+ import { meow, meowLevel } from "../../../../catstypicalframework/utils/catsLogger";
+ import { makeFilenameLegal } from "../../../../catstypicalframework/utils/storage";
+ import { defaultInnerRadius, wideModeThreshold } from "../../../../catstypicalframework/utils/ui";
++import lazy { ErrorPromptDetails } from "../../../../dialogs/public/WoofErrorPrompt/errorPromptScripts";
++import lazy { canRenameZoneTo, deZone, enZone } from "../../../../hosts/app/tabs/scripts/zones";
++import lazy { requestDialogOnMostRecent } from "../../../../hosts/system/dialogs/scripts/dialog";
++import lazy { openDialogRequestType } from "../../../../hosts/system/dialogs/classes/meowDialogManager";
+ import { meowUiHost } from "../../../../hosts/system/windows/classes/meowUiHost";
+ import { newWindow } from "../../../../hosts/system/windows/scripts/multiwindows";
++import { MooCapsuleButton } from "../../../common/MooCapsuleButton";
+ import { MooSymbolButton } from "../../../common/MooSymbolButton";
+ import { MooTextButton } from "../../../common/MooTextButton";
+ import lazy { MooTextInputV2 } from "../../../common/MooTextInputV2";
+ import { MooTextModifier } from "../../../common/MooTextModifier";
+ import { meowThemeColorType, standardSpacing } from "../../../constants";
+ import { defaultAnimation, getColor, isPreferRightHand, getMySettings, useEffects } from "../../../settings";
++import lazy { globalMessage,meowAppMessageType } from "../../../../hosts/system/windows/scripts/messaging";
+ 
+ @ComponentV2
+ struct MeowWindowInfoBar {
+@@ -50,14 +56,40 @@ struct MeowWindowInfoBar {
+           onChange: (value: string) => {
+             this.windowAliasEditing = value;
+           },
+-          onSubmit: () => {
++          onSubmit: async () => {
+             const finalName = makeFilenameLegal(this.windowAliasEditing, '');
+             this.windowAliasEditing = finalName;
+-            this.myUi.setWindowAlias(finalName);
+-            animateToImmediately(defaultAnimation(), () => {
+-              this.isEditing = false;
++
++            // Prevent alias collision for zones.
++            if (this.myUi.isZone) {
++              if (await canRenameZoneTo(finalName) == false) {
++                meow(`Cannot rename zone to [${finalName}]`, 'MeowWindowInfoBar', meowLevel.ERROR);
++                return;
++              }
++              
++              // Reject if busy
++              const myTabs = this.myUi.myTabs;
++              if (myTabs.isBusy) {
++                meow(`Zone ${this.myUi.windowAlias} is busy.`, 'MeowWindowInfoBar', meowLevel.WARN);
++                return;
++              }
++            }
++
++            await this.myUi.setWindowAlias(finalName);
++            
++            if (this.myUi.isZone) {
++              globalMessage(meowAppMessageType.ZONES_REFRESH);
++            }
++
++            // UI update
++            setTimeout(() => {
++              animateToImmediately(defaultAnimation(), () => {
++                this.isEditing = false;
++              });
++              if (!this.myUi.isZone) {
++                getMySettings().setByIndex(26, finalName);
++              }
+             });
+-            getMySettings().setByIndex(26, finalName);
+           }
+         })
+           .onAppear(() => {
+@@ -66,6 +98,38 @@ struct MeowWindowInfoBar {
+ 
+         // Notice about illegal chars
+         Text($r('app.string.WindowAlias_illegalChars')).attributeModifier(new MooTextModifier()).padding(standardSpacing * 0.5);
++
++        if (this.myUi.isZone) {
++          MooCapsuleButton({
++            text: $r('app.string.Zones_deZone'),
++            clickAction: () => {
++              deZone(this.myUi).then((r) => {
++              if (!r) {
++                requestDialogOnMostRecent(openDialogRequestType.ERROR_PROMPT, {
++                  isError: true,
++                  title: $r('app.string.Zones_deZone_failed'),
++                  contents: $r('app.string.Zones_deZone_failed_desc'),
++                } as ErrorPromptDetails, true);
++              }
++            });
++            }
++          });
++        } else {
++          MooCapsuleButton({
++            text: $r('app.string.Zones_enZone'),
++            clickAction: () => {
++              enZone(this.myUi).then((r) => {
++                if (!r) {
++                  requestDialogOnMostRecent(openDialogRequestType.ERROR_PROMPT, {
++                    isError: true,
++                    title: $r('app.string.Zones_enZone_failed'),
++                    contents: $r('app.string.Zones_enZone_failed_desc'),
++                  } as ErrorPromptDetails, true);
++                }
++              });
++            }
++          });
++        }
+       }
+     }
+     .constraintSize({ maxWidth: wideModeThreshold })
+diff --git a/entry/src/main/ets/components/parts/MeowPlaceForDialogs.ets b/entry/src/main/ets/components/parts/MeowPlaceForDialogs.ets
+index a917d25..ef4bc94 100644
+--- a/entry/src/main/ets/components/parts/MeowPlaceForDialogs.ets
++++ b/entry/src/main/ets/components/parts/MeowPlaceForDialogs.ets
+@@ -10,6 +10,7 @@ import lazy { WoofHistoryDialog } from '../../dialogs/parts/WoofHistory/WoofHist
+ import lazy { WoofScratchingBoardDialog } from '../../dialogs/parts/WoofScratchingBoard/WoofScratchingBoard';
+ import lazy { WoofSettingsDialog } from '../../dialogs/parts/WoofSettings/WoofSettings';
+ import lazy { WoofUpdatesDialog } from '../../dialogs/parts/WoofUpdates/WoofUpdates';
++import lazy { WoofZonesDialog } from '../../dialogs/parts/WoofZones/WoofZones';
+ import lazy { WoofColorPickerDialog } from '../../dialogs/public/WoofColorPicker/WoofColorPicker';
+ import lazy { WoofErrorPromptDialog } from '../../dialogs/public/WoofErrorPrompt/WoofErrorPrompt';
+ import lazy { WoofKeyShortcutPickerDialog } from '../../dialogs/public/WoofKeyShortcutPicker/WoofKeyShortcutPicker';
+@@ -324,6 +325,13 @@ struct MeowPlaceForDialogs {
+     // height: '95%',
+     cornerRadius: defaultRoundedRadius + 4,
+   });
++  woofZonesDialogController: CustomDialogController = new CustomDialogController({
++    builder: WoofZonesDialog({ myDialog: this.myDialog, myLayout: this.myLayout, myUi: this.myUi }),
++    alignment: DialogAlignment.Center,
++    width: '95%',
++    height: '95%',
++    cornerRadius: defaultRoundedRadius + 4,
++  });
+ 
+ 
+   build() {
+@@ -442,6 +450,9 @@ struct MeowPlaceForDialogs {
+       case openDialogRequestType.HTTP_AUTH:
+         this.woofHttpAuthDialogController.open();
+         break;
++      case openDialogRequestType.ZONES:
++        this.woofZonesDialogController.open();
++        break;
+       default:
+         break;
+     }
+diff --git a/entry/src/main/ets/components/parts/MeowPlaceForKeyShortcuts.ets b/entry/src/main/ets/components/parts/MeowPlaceForKeyShortcuts.ets
+index 08e22ab..7fae7ed 100644
+--- a/entry/src/main/ets/components/parts/MeowPlaceForKeyShortcuts.ets
++++ b/entry/src/main/ets/components/parts/MeowPlaceForKeyShortcuts.ets
+@@ -100,6 +100,10 @@ export function MeowPlaceForKeyShortcuts(
+       myTabs.saveCurrent();
+       meow(`Save Page!`, `MeowPlaceForShortcuts`, meowLevel.WARN);
+     });
++    Blank().keyboardShortcut(myKey.zones.value, myKey.zones.keys, () => {
++      requestDialog(myDialog, openDialogRequestType.ZONES);
++      meow(`Zones!`, `MeowPlaceForShortcuts`, meowLevel.WARN);
++    });
+     Blank().keyboardShortcut(myKey.fullscreenWindowed.value, myKey.fullscreenWindowed.keys, () => {
+       myUi.fullscreenWindowed();
+       meow(`Windowed Fullscreen!`, `MeowPlaceForShortcuts`, meowLevel.WARN);
+diff --git a/entry/src/main/ets/components/parts/Zones/MeowZones.ets b/entry/src/main/ets/components/parts/Zones/MeowZones.ets
+new file mode 100644
+index 0000000..809f19f
+--- /dev/null
++++ b/entry/src/main/ets/components/parts/Zones/MeowZones.ets
+@@ -0,0 +1,113 @@
++import { meowLayout } from "../../../catstypicalframework/hosts/meowLayout";
++import { ErrorPromptDetails } from "../../../dialogs/public/WoofErrorPrompt/errorPromptScripts";
++import lazy { deleteZone, discoverZones, glimpseOnZone, openZone } from "../../../hosts/app/tabs/scripts/zones";
++import { openDialogRequestType } from "../../../hosts/system/dialogs/classes/meowDialogManager";
++import { requestDialogOnMostRecent } from "../../../hosts/system/dialogs/scripts/dialog";
++import { meowAppHost } from "../../../hosts/system/windows/classes/meowAppHost";
++import { getCreateMyApp } from "../../../hosts/system/windows/scripts/helpers";
++import lazy { meowAppMessageType } from "../../../hosts/system/windows/scripts/messaging";
++import { MooCapsuleButton } from "../../common/MooCapsuleButton";
++import { MooTextModifier } from "../../common/MooTextModifier";
++import { UniContentCard } from "../../common/UniContentCard";
++import { UniRowOfCapsuleButtons } from "../../common/UniRowOfCapsuleButtons";
++import { standardSpacing } from "../../constants";
++import { defaultAnimation, waterFlowColumnsTemplate } from "../../settings";
++
++@ComponentV2
++export struct MeowZones {
++  @Param @Require myLayout: meowLayout;
++  @Local myApp: meowAppHost = getCreateMyApp();
++  // Local
++  @Local zones: string[] = [];
++  @Local glimpses: string[][] = [];
++
++  aboutToAppear(): void {
++    this.scan();
++  }
++
++  build() {
++    Scroll() {
++      WaterFlow() {
++        Repeat(this.zones)
++          .each((item) => {
++            FlowItem() {
++              UniContentCard({ title: item.item, icon: $r('sys.symbol.briefcase'), expanded: true, space: standardSpacing * 1.25 }) {
++                // Glimpses
++                Repeat(this.glimpses[item.index])
++                  .each((gl) => {
++                    Text(gl.item).attributeModifier(new MooTextModifier()).width('100%').opacity(0.75);
++                  })
++                  .key((gl) => gl);
++                // Buttons
++                UniRowOfCapsuleButtons() {
++                  MooCapsuleButton({
++                    text: $r('app.string.General_delete'),
++                    needDoubleConfirm: true,
++                    clickAction: () => {
++                      deleteZone(item.item).then((result) => {
++                        if (result) {
++                          this.scan();
++                        } else {
++                          // Failed;
++                          requestDialogOnMostRecent(openDialogRequestType.ERROR_PROMPT, {
++                            isError: true,
++                            title: $r('app.string.Zones_delete_failed'),
++                            contents: $r('app.string.Zones_delete_failed_desc'),
++                          } as ErrorPromptDetails, true);
++                        }
++                      });
++                    }
++                  });
++                  MooCapsuleButton({
++                    text: $r('app.string.Zones_open'),
++                    clickAction: () => {
++                      openZone(item.item);
++                    }
++                  });
++                };
++              };
++            };
++          })
++          .key((item) => item);
++      }
++      .clip(false) // To eliminate the cuts on the edges
++      .columnsTemplate(waterFlowColumnsTemplate(this.myLayout))
++      .columnsGap(standardSpacing)
++      .rowsGap(standardSpacing);
++    }
++    .align(Alignment.TopStart)
++    .layoutWeight(1)
++    .padding(standardSpacing)
++    .edgeEffect(EdgeEffect.Spring);
++  }
++
++  scan() {
++    // Discover zones from disk.
++    discoverZones().then(async (r) => {
++      if (r) {
++        // Glimpse
++        for (const zoneAlias of r) {
++          const glimpse = await glimpseOnZone(zoneAlias);
++          if (glimpse) {
++            this.glimpses.push(glimpse);
++          }
++        }
++
++        // Use setTimeout to enable animation.
++        setTimeout(() => {
++          animateToImmediately(defaultAnimation(), () => {
++            this.zones = r;
++          });
++        });
++      }
++    });
++  }
++
++  @Monitor('myApp.crossAppMessageTunnel')
++  receiveMessage() {
++    const msg = this.myApp.crossAppMessageTunnel!;
++    if (msg.type == meowAppMessageType.ZONES_REFRESH) {
++      this.scan();
++    }
++  }
++}
+diff --git a/entry/src/main/ets/dialogs/parts/WoofZones/WoofZones.ets b/entry/src/main/ets/dialogs/parts/WoofZones/WoofZones.ets
+new file mode 100644
+index 0000000..9039be4
+--- /dev/null
++++ b/entry/src/main/ets/dialogs/parts/WoofZones/WoofZones.ets
+@@ -0,0 +1,19 @@
++import { meowLayout } from "../../../catstypicalframework/hosts/meowLayout";
++import { MeowZones } from "../../../components/parts/Zones/MeowZones";
++import { meowDialogManager } from "../../../hosts/system/dialogs/classes/meowDialogManager";
++import { meowUiHost } from "../../../hosts/system/windows/classes/meowUiHost";
++import { WoofUniFrame } from "../../WoofUniFrame";
++
++@CustomDialog
++export struct WoofZonesDialog {
++  controller: CustomDialogController;
++  @Require myDialog: meowDialogManager;
++  @Require myLayout: meowLayout;
++  @Require myUi: meowUiHost;
++
++  build() {
++    WoofUniFrame({ controller: this.controller, title: $r('app.string.Zones_title'), myDialog: this.myDialog, myLayout: this.myLayout }) {
++      MeowZones({ myLayout: this.myLayout });
++    };
++  }
++}
+diff --git a/entry/src/main/ets/hosts/app/tabs/classes/meowTabsBunch.ets b/entry/src/main/ets/hosts/app/tabs/classes/meowTabsBunch.ets
+index cd5ba9c..f6fb707 100644
+--- a/entry/src/main/ets/hosts/app/tabs/classes/meowTabsBunch.ets
++++ b/entry/src/main/ets/hosts/app/tabs/classes/meowTabsBunch.ets
+@@ -427,6 +427,20 @@ export class meowTabsBunch {
+ 
+   // GETTERS
+ 
++  /**
++   * Gets if any of the tabs are doing a webstate saving or history punching.
++   */
++  get isBusy() {
++    let busy = false;
++    for (const tab of this.tabs) {
++      if (tab.saveWebStateTimeoutId != undefined || tab.saveHistoryTimeoutId != undefined) {
++        busy = true;
++        break;
++      }
++    }
++    return busy;
++  }
++
+   get currentNode() {
+     if (this.currentTab) {
+       return this.currentTab.node;
+diff --git a/entry/src/main/ets/hosts/app/tabs/scripts/zones.ets b/entry/src/main/ets/hosts/app/tabs/scripts/zones.ets
+new file mode 100644
+index 0000000..a77d160
+--- /dev/null
++++ b/entry/src/main/ets/hosts/app/tabs/scripts/zones.ets
+@@ -0,0 +1,230 @@
++import lazy { common } from "@kit.AbilityKit";
++import lazy { fastbuffer } from "@kit.ArkTS";
++import lazy { AppStorageV2, UIContext } from "@kit.ArkUI";
++import lazy { meow, meowLevel } from "../../../../catstypicalframework/utils/catsLogger";
++import lazy { dirMove, listFilesUnderDir, readArrayBuffer, removeDir, renameFolder } from "../../../../catstypicalframework/utils/storage";
++import lazy { meowUiHost } from "../../../system/windows/classes/meowUiHost";
++import lazy { getCreateMyApp } from "../../../system/windows/scripts/helpers";
++import lazy { globalMessage, meowAppMessageType } from "../../../system/windows/scripts/messaging";
++import lazy { generateTimeBasedWindowId, newWindow } from "../../../system/windows/scripts/multiwindows";
++
++/**
++ * Discovers zones from the disk.
++ * @returns The zones list, or undefined if something went wrong.
++ */
++export async function discoverZones() {
++  const context = UIContext.getLastFocusedUIContext()?.getHostContext();
++  if (!context) {
++    meow(`No UI context found.`, 'discoverZones', meowLevel.ERROR);
++    return undefined;
++  }
++
++  const filesDir = context.filesDir;
++  const zonesDir = `${filesDir}/zones`;
++  const zones = await listFilesUnderDir(zonesDir);
++  return zones;
++}
++
++/**
++ * Glimpses on a zone. Get the first three labels of tabs in that zone
++ * @param zoneAlias The alias of the zone.
++ * @returns The labels of the tabs in that zone. Undefined if something went wrong.
++ */
++export async function glimpseOnZone(zoneAlias: string) {
++  const context = UIContext.getLastFocusedUIContext()?.getHostContext();
++  if (!context) {
++    meow(`No UI context found.`, 'discoverZones', meowLevel.ERROR);
++    return undefined;
++  }
++
++  const filesDir = context.filesDir;
++  const zoneDir = `${filesDir}/zones/${zoneAlias}`;
++  const filenames = await listFilesUnderDir(zoneDir);
++
++  if (filenames == undefined) {
++    return undefined;
++  }
++
++  const labels: string[] = [];
++  for (const fn of filenames) {
++    if (!fn.endsWith('el')) {
++      continue; // For '_label'
++    }
++    try {
++      const content = fastbuffer.from(await readArrayBuffer(`${zoneDir}/${fn}`)).toString();
++      labels.push(content);
++    } catch (e) {
++      meow(`Failed to read file ${fn} in zone ${zoneAlias}: ${e}`, 'glimpseOnZone', meowLevel.ERROR);
++    }
++    if (labels.length >= 3) {
++      break;
++    }
++  }
++  return labels;
++}
++
++/**
++ * Deletes a zone from the disk.
++ * @param zoneAlias The alias of the zone.
++ */
++export async function deleteZone(zoneAlias: string) {
++  const context = UIContext.getLastFocusedUIContext()?.getHostContext();
++  if (!context) {
++    meow(`No UI context found.`, 'deleteZone', meowLevel.ERROR);
++    return false;
++  }
++
++  // Reject if zone is opened.
++  if (await isZoneOpened(zoneAlias)) {
++    meow(`Zone ${zoneAlias} is opened.`, 'deleteZone', meowLevel.WARN);
++    return false;
++  }
++
++  const zoneDir = `${context.filesDir}/zones/${zoneAlias}`;
++  await removeDir(zoneDir);
++
++  // Broadcast
++  globalMessage(meowAppMessageType.ZONES_REFRESH);
++  return true;
++}
++
++/**
++ * Opens a zone.
++ * @param zoneAlias The alias of the zone.
++ */
++export async function openZone(zoneAlias: string) {
++  const context = UIContext.getLastFocusedUIContext()?.getHostContext();
++  if (!context) {
++    meow(`No UI context found.`, 'deleteZone', meowLevel.ERROR);
++    return;
++  }
++
++  // Reject if zone is opened already.
++  const thatWindowId = await isZoneOpened(zoneAlias);
++  if (thatWindowId) {
++    meow(`Zone [${zoneAlias}] is already opened. Jumping to [${thatWindowId}]`, 'openZone', meowLevel.WARN);
++  }
++
++  await newWindow(context as common.UIAbilityContext, thatWindowId || generateTimeBasedWindowId(), zoneAlias);
++}
++
++/**
++ * Checks if a zone is opened.
++ * @param zoneAlias The alias of the zone.
++ * @returns The zone's windowId if the zone is opened, false otherwise.
++ */
++export async function isZoneOpened(zoneAlias: string) {
++  const myApp = getCreateMyApp();
++  for (const wId of myApp.windowIds) {
++    const thatUi = AppStorageV2.connect(meowUiHost, `meowUiHost_${wId}`);
++    if (!thatUi || !thatUi.isZone) {
++      continue;
++    }
++    if (thatUi.windowAlias == zoneAlias) {
++      // meow(`Zone [${zoneAlias}] is opened.`, 'isZoneOpened', meowLevel.WARN);
++      return thatUi.windowId;
++    }
++  }
++  return false;
++}
++
++/**
++ * Checks if a zone can be renamed to the given alias.
++ * @param testZoneAlias The alias to test.
++ * @returns True if the zone can be renamed, false otherwise.
++ */
++export async function canRenameZoneTo(testZoneAlias: string) {
++  const allZones = await discoverZones();
++  if (!allZones) {
++    return false;
++  }
++  return !allZones.includes(testZoneAlias);
++}
++
++/**
++ * Enables the zone mode for the given UI.
++ * @param myUi The meowUiHost.
++ */
++export async function enZone(myUi: meowUiHost) {
++  const startTime = Date.now();
++  const context = UIContext.getLastFocusedUIContext()?.getHostContext();
++  if (!context) {
++    meow(`No UI context found.`, 'enZone', meowLevel.ERROR);
++    return false;
++  }
++
++  // Reject duplicate names
++  if (await canRenameZoneTo(myUi.windowAlias) == false) {
++    meow(`Zone name [${myUi.windowAlias}] already taken.`, 'enZone', meowLevel.WARN);
++    return false;
++  }
++
++  // Reject if busy
++  const myTabs = myUi.myTabs;
++  if (myTabs.isBusy) {
++    meow(`Zone ${myUi.windowAlias} is busy.`, 'enZone', meowLevel.WARN);
++    return false;
++  }
++
++  // Move
++  const newWorkingDirParent = `${context.filesDir}/zones`;
++  const oldWorkingDir = myUi.workingDir;
++  await dirMove(oldWorkingDir, newWorkingDirParent, false);
++
++  // Rename
++  const originalWorkingDirName = oldWorkingDir.split('/').pop();
++  const wDirAfterMove = `${newWorkingDirParent}/${originalWorkingDirName}`;
++  const newWorkingDir = `${newWorkingDirParent}/${myUi.windowAlias}`;
++  await renameFolder(wDirAfterMove, newWorkingDir);
++
++  // Set Info
++  myUi.workingDir = newWorkingDir;
++  myUi.isZone = true;
++  await myUi.updateWindowTitle();
++
++  // Broadcast
++  globalMessage(meowAppMessageType.ZONES_REFRESH);
++  meow(`Zone ${myUi.windowAlias} is enabled. (${Date.now() - startTime} ms)`, 'enZone', meowLevel.INFO);
++  return true;
++}
++
++/**
++ * Disables the zone mode for the given UI.
++ * @param myUi The meowUiHost.
++ */
++export async function deZone(myUi: meowUiHost) {
++  const startTime = Date.now();
++  const context = UIContext.getLastFocusedUIContext()?.getHostContext();
++  if (!context) {
++    meow(`No UI context found.`, 'deZone', meowLevel.ERROR);
++    return false;
++  }
++
++  // Reject if busy
++  const myTabs = myUi.myTabs;
++  if (myTabs.isBusy) {
++    meow(`Zone ${myUi.windowAlias} is busy.`, 'deZone', meowLevel.WARN);
++    return false;
++  }
++
++  // Move
++  const newWorkingDirParent = `${context.filesDir}/continues`;
++  const oldWorkingDir = myUi.workingDir;
++  await dirMove(oldWorkingDir, newWorkingDirParent, false);
++
++  // Rename
++  const originalWorkingDirName = oldWorkingDir.split('/').pop();
++  const wDirAfterMove = `${newWorkingDirParent}/${originalWorkingDirName}`;
++  const newWorkingDir = `${newWorkingDirParent}/${myUi.windowId}`;
++  await renameFolder(wDirAfterMove, newWorkingDir);
++
++  // Set Info
++  myUi.workingDir = newWorkingDir;
++  myUi.isZone = false;
++  await myUi.updateWindowTitle();
++
++  // Broadcast
++  globalMessage(meowAppMessageType.ZONES_REFRESH);
++  meow(`Zone ${myUi.windowAlias} is disabled. (${Date.now() - startTime} ms)`, 'deZone', meowLevel.INFO);
++  return true;
++}
+diff --git a/entry/src/main/ets/hosts/system/dialogs/classes/meowDialogManager.ets b/entry/src/main/ets/hosts/system/dialogs/classes/meowDialogManager.ets
+index f39d0f6..82e253c 100644
+--- a/entry/src/main/ets/hosts/system/dialogs/classes/meowDialogManager.ets
++++ b/entry/src/main/ets/hosts/system/dialogs/classes/meowDialogManager.ets
+@@ -115,7 +115,8 @@ export enum openDialogRequestType {
+   WEB_PERMISSIONS,
+   SCREEN_CAPTURE,
+   WEB_GEOLOCATION,
+-  HTTP_AUTH
++  HTTP_AUTH,
++  ZONES
+ }
+ 
+ /**
+diff --git a/entry/src/main/ets/hosts/system/resources/scripts/backup.ets b/entry/src/main/ets/hosts/system/resources/scripts/backup.ets
+index 1e2b2eb..6d892a6 100644
+--- a/entry/src/main/ets/hosts/system/resources/scripts/backup.ets
++++ b/entry/src/main/ets/hosts/system/resources/scripts/backup.ets
+@@ -28,7 +28,8 @@ const dirsToImport = [
+   'easylist',
+   'faultlogs',
+   'history',
+-  'history-index'
++  'history-index',
++  'zones'
+ ];
+ 
+ export interface importEverythingResult {
+diff --git a/entry/src/main/ets/hosts/system/windows/classes/meowUiHost.ets b/entry/src/main/ets/hosts/system/windows/classes/meowUiHost.ets
+index 0e86dda..ba83a0f 100644
+--- a/entry/src/main/ets/hosts/system/windows/classes/meowUiHost.ets
++++ b/entry/src/main/ets/hosts/system/windows/classes/meowUiHost.ets
+@@ -3,7 +3,7 @@ import lazy { AppStorageV2, window } from "@kit.ArkUI";
+ import lazy { BusinessError } from "@kit.BasicServicesKit";
+ import { meowLayout } from "../../../../catstypicalframework/hosts/meowLayout";
+ import lazy { meow, meowLevel } from "../../../../catstypicalframework/utils/catsLogger";
+-import { ensureDirectoryExist, removeDir } from "../../../../catstypicalframework/utils/storage";
++import lazy { ensureDirectoryExist, removeDir, renameFolder } from "../../../../catstypicalframework/utils/storage";
+ import { getKeywordEntries, UnifiedDestinationResult, UnifiedDestinationResultType, unifyDestination } from "../../../../catstypicalframework/utils/url";
+ import { meowThemeColorType, UnifiedButtonsType } from "../../../../components/constants";
+ import { addressBarId } from "../../../../components/parts/Homepage/addressBar/MeowAddressBar";
+@@ -30,7 +30,8 @@ export class meowUiHost {
+   @Trace windowAlias: string = '';
+   @Trace windowObj: window.Window | undefined;
+   @Trace windowStage: window.WindowStage | undefined;
+-  @Trace workingDir: string;
++  @Trace workingDir: string; // TODO: Should be changed after setting ON / OFF being a zone.
++  @Trace isZone: boolean = false;
+   // Wants
+   launchWant: Want;
+   // UI
+@@ -80,18 +81,22 @@ export class meowUiHost {
+     this.launchWant = want;
+     this.windowId = windowId;
+     this.workingDir = workingDirectory;
++    // Determine isZone
++    const paths = workingDirectory.split('/');
++    paths.pop(); // Zone alias name, should be == windowId
++    this.isZone = paths.pop() == 'zones'; // The zones folder name.
+   }
+ 
+   /**
+-   * Ensures the working directory exist.
++   * Ensures the working directory exist and determines if isZone.
+    */
+   async initWorkingDir() {
+     const alreadyExist = await ensureDirectoryExist(this.workingDir); // Opened tabs for this window.
+-    meow(`Ensured directory [${this.workingDir}]. alreadyExist = [${alreadyExist}].`, `meowUiHost][initWorkingDir][${this.windowId}`, meowLevel.WARN);
++    meow(`Ensured directory [${this.workingDir}]. isZone = [${this.isZone}]. alreadyExist = [${alreadyExist}].`, `meowUiHost][initWorkingDir][${this.windowId}`, meowLevel.WARN);
+ 
+     // Load something
+     const startUpOption = startUpOptionFromSettings();
+-    if (startUpOption == 'continue') {
++    if (startUpOption == 'continue' || this.isZone) {
+       await this.myTabs.loadAllStatesFromDir(this.workingDir);
+     } else if (startUpOption == 'home') {
+       await this.myTabs.newTabWrapped(userHomeUrl());
+@@ -103,19 +108,22 @@ export class meowUiHost {
+   }
+ 
+   /**
+-   * Removes the working directory if not needed anymore.
++   * Removes the working directory if not isZone.
+    */
+   async reportWindowClose() {
+     meow(`Window [${this.windowId}] closed.`, `meowUiHost][reportWindowClose][${this.windowId}`, meowLevel.WARN);
+     const isLastWindow = getCreateMyApp().windowIds.length == 0;
+     const nextTimeNeed = startUpOptionFromSettings() == 'continue';
+     // Remove if is either one of:
+-    // 1. Not last window
+-    // 2. (IS last window &&) not next time need
+-    if (!isLastWindow || !nextTimeNeed) {
++    // 1. Not ZONE && not last window
++    // 2. Not ZONE && (IS last window &&) not next time need
++    if (!this.isZone && (!isLastWindow || !nextTimeNeed)) {
+       await removeDir(this.workingDir);
+       meow(`Removed directory [${this.workingDir}]. isLastWindow = [${isLastWindow}], nextTimeNeed = [${nextTimeNeed}].`, `meowUiHost][reportWindowClose][${this.windowId}`, meowLevel.WARN);
+     } else {
++      // Is a zone, or is the last non-zone but next time need.
++      // Remove nothing.
++
+       // These doesn't seem to work as intended... :(
+       // Sometimes they are not triggered?
+       // meow(`About to save all webStates to disk!`, `meowUiHost][reportWindowClose][${this.windowId}`, meowLevel.WARN);
+@@ -259,8 +267,9 @@ export class meowUiHost {
+    * Update the window title.
+    */
+   async updateWindowTitle() {
+-    meow(`Update window title to: ${this.windowAlias}`, `meowUiHost][${this.windowId}][updateWindowTitle`, meowLevel.WARN);
+-    this.windowObj?.setWindowTitle(this.windowAlias)
++    const alias = this.isZone? `󰙟 ${this.windowAlias}`:this.windowAlias;
++    meow(`Update window title to: ${alias}`, `meowUiHost][${this.windowId}][updateWindowTitle`, meowLevel.WARN);
++    this.windowObj?.setWindowTitle(alias)
+       .catch((e: BusinessError) => {
+         meow(`Failed to set window title: ${e.message}`, `meowUiHost][${this.windowId}][updateWindowTitle`, meowLevel.ERROR);
+       });
+@@ -300,9 +309,17 @@ export class meowUiHost {
+   /**
+    * Sets the alias of the window.
+    */
+-  setWindowAlias(newAlias: string) {
++  async setWindowAlias(newAlias: string) {
+     this.windowAlias = newAlias;
+-    this.updateWindowTitle();
++    await this.updateWindowTitle();
++    
++    // Zones names
++    if (this.isZone) {
++      // Replace the last part of current workingDir to the newAlias
++      const oldDir = this.workingDir;
++      this.workingDir = this.workingDir.replace(/\/[^/]+$/, `/${newAlias}`);
++      await renameFolder(oldDir, this.workingDir);
++    }
+   }
+ 
+   /**
+diff --git a/entry/src/main/ets/hosts/system/windows/scripts/messaging.ets b/entry/src/main/ets/hosts/system/windows/scripts/messaging.ets
+index f15e8b8..0087d4e 100644
+--- a/entry/src/main/ets/hosts/system/windows/scripts/messaging.ets
++++ b/entry/src/main/ets/hosts/system/windows/scripts/messaging.ets
+@@ -16,6 +16,7 @@ export enum meowAppMessageType {
+   HISTORY_DELETED,
+   HISTORY_REFRESH,
+   USE_EFFECTS_UPDATED,
++  ZONES_REFRESH,
+ }
+ 
+ /**
+diff --git a/entry/src/main/ets/hosts/system/windows/scripts/multiwindows.ets b/entry/src/main/ets/hosts/system/windows/scripts/multiwindows.ets
+index 8d99d88..c4248ee 100644
+--- a/entry/src/main/ets/hosts/system/windows/scripts/multiwindows.ets
++++ b/entry/src/main/ets/hosts/system/windows/scripts/multiwindows.ets
+@@ -32,9 +32,10 @@ export function generateTimeBasedWindowId() {
+  * Create a new window.
+  * @param context The context.
+  * @param windowId The window id. Have time based window id generation if left blank. YOU SHOULDN'T SET THIS MANUALLY IN MOST CASES!
++ * @param zoneAlias The alias of the zone, used to load zone from disk.
+  * @returns True if ok, false if failed.
+  */
+-export async function newWindow(context: common.UIAbilityContext, windowId: string = generateTimeBasedWindowId()) {
++export async function newWindow(context: common.UIAbilityContext, windowId: string = generateTimeBasedWindowId(), zoneAlias: string = '') {
+   let info: abilityManager.AbilityRunningInfo[] = [];
+ 
+   try {
+@@ -52,6 +53,7 @@ export async function newWindow(context: common.UIAbilityContext, windowId: stri
+     abilityName: context.abilityInfo.name,
+     parameters: {
+       instanceKey: windowId,
++      zoneAlias: zoneAlias
+     }
+   };
+ 
+diff --git a/entry/src/main/ets/hosts/userdata/keyshortcuts/classes/meowKeyboardMan.ets b/entry/src/main/ets/hosts/userdata/keyshortcuts/classes/meowKeyboardMan.ets
+index 3c382ad..abf7dbf 100644
+--- a/entry/src/main/ets/hosts/userdata/keyshortcuts/classes/meowKeyboardMan.ets
++++ b/entry/src/main/ets/hosts/userdata/keyshortcuts/classes/meowKeyboardMan.ets
+@@ -17,6 +17,7 @@ export class meowKeyboardMan {
+   @Trace newWindow: meowKeyBind = new meowKeyBind('n', [ModifierKey.CTRL]);
+   @Trace pin: meowKeyBind = new meowKeyBind('p', [ModifierKey.ALT]);
+   @Trace save: meowKeyBind = new meowKeyBind('s', [ModifierKey.CTRL]);
++  @Trace zones: meowKeyBind = new meowKeyBind('z', [ModifierKey.ALT]);
+   @Trace fullscreenWindowed: meowKeyBind = new meowKeyBind(FunctionKey.F11, [ModifierKey.SHIFT]);
+   @Trace esc: meowKeyBind = new meowKeyBind(FunctionKey.ESC, []);
+   @Trace sidebar: meowKeyBind = new meowKeyBind('z', [ModifierKey.CTRL, ModifierKey.SHIFT]);
+@@ -25,7 +26,7 @@ export class meowKeyboardMan {
+   @Trace shortcuts: meowKeyBind[] = [
+     this.newTab, this.closeTab, this.showTabs, this.focusAddress, this.searchInPage,
+     this.fullscreen, this.history, this.refresh, this.print, this.newWindow,
+-    this.pin, this.save, this.fullscreenWindowed, this.esc,
++    this.pin, this.save, this.zones, this.fullscreenWindowed, this.esc,
+     this.sidebar
+   ];
+   @Trace shortcutsStrings: ResourceStr[] = [
+@@ -41,6 +42,7 @@ export class meowKeyboardMan {
+     $r('app.string.KeyShortcuts_newWindow'),
+     $r('app.string.KeyShortcuts_pin'),
+     $r('app.string.KeyShortcuts_save'),
++    $r('app.string.KeyShortcuts_zones'),
+     $r('app.string.KeyShortcuts_fullscreenWindowed'),
+     $r('app.string.KeyShortcuts_esc'),
+     $r('app.string.KeyShortcuts_showSidebar'),
+diff --git a/entry/src/main/resources/base/element/string.json b/entry/src/main/resources/base/element/string.json
+index c20a8ad..8828820 100644
+--- a/entry/src/main/resources/base/element/string.json
++++ b/entry/src/main/resources/base/element/string.json
+@@ -744,6 +744,10 @@
+       "name": "KeyShortcuts_save",
+       "value": "󰀻  Save / archive page"
+     },
++    {
++      "name": "KeyShortcuts_zones",
++      "value": "󰖐  Zones"
++    },
+     {
+       "name": "KeyShortcuts_fullscreenWindowed",
+       "value": "󰃍  Windowed fullscreen"
+@@ -1032,6 +1036,46 @@
+       "name": "WindowAlias_illegalChars",
+       "value": "Special characters not supported: \\ / : * ? \" < > |"
+     },
++    {
++      "name": "Zones_title",
++      "value": "Zones"
++    },
++    {
++      "name": "Zones_open",
++      "value": "Open"
++    },
++    {
++      "name": "Zones_enZone",
++      "value": "󰙟  Set as a Zone"
++    },
++    {
++      "name": "Zones_deZone",
++      "value": "󰈳  Exclude from Zones"
++    },
++    {
++      "name": "Zones_delete_failed",
++      "value": "Delete failed"
++    },
++    {
++      "name": "Zones_delete_failed_desc",
++      "value": "Opened Zones could not be deleted!"
++    },
++    {
++      "name": "Zones_enZone_failed",
++      "value": "Set as Zone failed"
++    },
++    {
++      "name": "Zones_enZone_failed_desc",
++      "value": "Check if there exist a Zone with an identical alias already!\nOr, is the current window saving something? Wait a while and try again!"
++    },
++    {
++      "name": "Zones_deZone_failed",
++      "value": "Exclude from Zones failed"
++    },
++    {
++      "name": "Zones_deZone_failed_desc",
++      "value": "Is the current window saving something? Wait a while and try again!"
++    },
+     {
+       "name": "Permission_reason_INTERNET",
+       "value": "Let the BrowserCat visit the web!"
+diff --git a/entry/src/main/resources/zh_CN/element/string.json b/entry/src/main/resources/zh_CN/element/string.json
+index 2d93750..22d27b3 100644
+--- a/entry/src/main/resources/zh_CN/element/string.json
++++ b/entry/src/main/resources/zh_CN/element/string.json
+@@ -744,6 +744,10 @@
+       "name": "KeyShortcuts_save",
+       "value": "󰀻  保存"
+     },
++    {
++      "name": "KeyShortcuts_zones",
++      "value": "󰖐  查看工作区"
++    },
+     {
+       "name": "KeyShortcuts_fullscreenWindowed",
+       "value": "󰃍  窗口化全屏"
+@@ -1032,6 +1036,38 @@
+       "name": "WindowAlias_illegalChars",
+       "value": "不支持特殊字符：\\ / : * ? \" < > |"
+     },
++    {
++      "name": "Zones_title",
++      "value": "工作区"
++    },
++    {
++      "name": "Zones_open",
++      "value": "打开"
++    },
++    {
++      "name": "Zones_enZone",
++      "value": "󰙟  设为工作区"
++    },
++    {
++      "name": "Zones_deZone",
++      "value": "󰈳  取消设为工作区"
++    },
++    {
++      "name": "Zones_delete_failed",
++      "value": "删除失败"
++    },
++    {
++      "name": "Zones_delete_failed_desc",
++      "value": "无法删除已打开的工作区！"
++    },
++    {
++      "name": "Zones_enZone_failed",
++      "value": "设为工作区失败"
++    },
++    {
++      "name": "Zones_enZone_failed_desc",
++      "value": "检查是否已存在同名的工作区！\n或者，当前窗口正在保存某些内容？请稍等片刻再试！"
++    },
+     {
+       "name": "Permission_reason_INTERNET",
+       "value": "让冲浪喵访问互联网！"

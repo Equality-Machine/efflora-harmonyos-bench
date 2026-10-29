@@ -1,0 +1,13 @@
+{
+  "modelVersion": "6.0.0",
+  "name": "harmony_dining_order",
+  "version": "1.0.0",
+  "description": "餐厅点单 · 餐品展现（真元服务，纯前端）",
+  "main": "",
+  "author": "鸿蒙实践案例开发团队",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@ohos/hypium": "1.0.15"
+  }
+}

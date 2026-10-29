@@ -1,0 +1,12 @@
+{
+  "float": [
+    {
+      "name": "card_corner_radius",
+      "value": "16vp"
+    },
+    {
+      "name": "tag_corner_radius",
+      "value": "999vp"
+    }
+  ]
+}

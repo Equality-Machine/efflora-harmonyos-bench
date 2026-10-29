@@ -1,0 +1,20 @@
+{
+  "color": [
+    {
+      "name": "start_window_background",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "blur_background",
+      "value": "#50FFFFFF"
+    },
+    {
+      "name": "blur_background_contrast",
+      "value": "#0E000000"
+    },
+    {
+      "name": "effects_emphasize",
+      "value": "#30000000"
+    }
+  ]
+}

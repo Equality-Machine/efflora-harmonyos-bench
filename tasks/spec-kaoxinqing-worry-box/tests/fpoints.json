@@ -1,0 +1,9 @@
+{
+  "bundle": "com.example.kaoxinqing",
+  "fpoints": [
+    { "id": "F1", "scenario": 1, "title": "我的页入口进入担忧收纳盒，空/空格输入不新增，添加后统计与入口计数联动", "phases": ["WorryBoxTest#f1_collect"] },
+    { "id": "F2", "scenario": 2, "title": "放下后移入已放下分组，统计与入口计数 1→0", "phases": ["WorryBoxTest#f2_release"] },
+    { "id": "F3", "scenario": 3, "title": "转为待办后进入已转待办分组，考试与计划页出现同名未完成非重点待办", "phases": ["WorryBoxTest#f3_to_task"] },
+    { "id": "F4", "scenario": 4, "title": "重启后分组/统计/入口计数保留；删除仅限非待处理且不影响已生成待办", "phases": ["WorryBoxTest#f4_setup", "WorryBoxTest#f4_verify"] }
+  ]
+}

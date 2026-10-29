@@ -1,0 +1,32 @@
+{
+  "bundle_name": "com.harmonybench.bf.shisijisheet",
+  "toolchain_expect": {
+    "clt": "6.1.1.418"
+  },
+  "device_expect": {
+    "const.ohos.apiversion": "24",
+    "const.ohos.fullname": "OpenHarmony-6.1.1.125",
+    "persist.global.locale": "zh-Hans-CN",
+    "persist.time.timezone": "Asia/Shanghai"
+  },
+  "cleanup_bundle_prefixes": [
+    "com.harmonybench."
+  ],
+  "module": "entry",
+  "module_dir": "entry",
+  "product": "default",
+  "test_module_name": "entry_test",
+  "test_runner": "/ets/testrunner/OpenHarmonyTestRunner",
+  "test_timeout_ms": 90000,
+  "inject": {
+    "ohosTest": "entry/src/ohosTest"
+  },
+  "device_prep": [],
+  "fpoints": [
+    {
+      "id": "FP1_open_dish_detail_twice",
+      "test": "BF_DishDetail#FP1_open_dish_detail_twice",
+      "desc": "餐厅点餐：点「过桥米线」弹出详情弹层（营业信息行 + 菜名 + 价格 + 规格选项），返回关闭后再点「汽锅鸡」同样正常弹出，全程不崩溃（缺陷版本打开详情即 jscrash: undefined is not callable）"
+    }
+  ]
+}

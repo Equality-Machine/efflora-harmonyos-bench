@@ -1,0 +1,35 @@
+{
+  "bundle_name": "com.harmonybench.bf.shisijinav",
+  "toolchain_expect": {
+    "clt": "6.1.1.418"
+  },
+  "device_expect": {
+    "const.ohos.apiversion": "24",
+    "const.ohos.fullname": "OpenHarmony-6.1.1.125",
+    "persist.global.locale": "zh-Hans-CN"
+  },
+  "cleanup_bundle_prefixes": [
+    "com.harmonybench."
+  ],
+  "module": "entry",
+  "module_dir": "entry",
+  "product": "default",
+  "test_module_name": "entry_test",
+  "test_runner": "/ets/testrunner/OpenHarmonyTestRunner",
+  "test_timeout_ms": 90000,
+  "inject": {
+    "ohosTest": "entry/src/ohosTest"
+  },
+  "device_prep": [],
+  "fpoints": [
+    {
+      "id": "FP1_first_entry_shows_module",
+      "test": [
+        "BF_NavBlank#FP1_first_entry_pet",
+        "BF_NavBlank#FP1_first_entry_book",
+        "BF_NavBlank#FP1_dining_still_ok"
+      ],
+      "desc": "三个冷启动阶段：①进入「宠物领养」显示标题（暖爪之家）、筛选标签（猫咪）和列表（小黄）；②进入「书单书架」显示「拾光书局」「历史」「三体」；③回归：进入「餐厅点餐」仍显示「过桥米线」。缺陷版本进入宠物/书单为空白 NavDestination（无 JS 错误、不崩溃）；只把某一个模块挪到路由表首分支的改法只能通过①②之一"
+    }
+  ]
+}

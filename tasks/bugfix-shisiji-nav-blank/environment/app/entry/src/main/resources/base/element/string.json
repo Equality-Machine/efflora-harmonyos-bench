@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "四时集 · 四个生活场景主模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "四时集元服务"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "四时集"
+    }
+  ]
+}

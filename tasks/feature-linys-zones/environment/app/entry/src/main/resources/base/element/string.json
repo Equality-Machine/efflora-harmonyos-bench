@@ -1,0 +1,1096 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "Built on Cats Typical Framework!"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "The gateway to everything about cats!"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "BrowserCat Nya"
+    },
+    {
+      "name": "General_new",
+      "value": "New  󰀵"
+    },
+    {
+      "name": "General_delete",
+      "value": "Remove  󰀁"
+    },
+    {
+      "name": "General_clear",
+      "value": "Clean  󰀖"
+    },
+    {
+      "name": "General_save",
+      "value": "Save  󰀻"
+    },
+    {
+      "name": "General_confirm",
+      "value": "Confirm  󰀓"
+    },
+    {
+      "name": "General_cancel",
+      "value": "Cancel  󰁖"
+    },
+    {
+      "name": "General_refresh",
+      "value": "Refresh  󰃈"
+    },
+    {
+      "name": "General_wait",
+      "value": "Wait...  󰃯"
+    },
+    {
+      "name": "General_select",
+      "value": "Select  󰂺"
+    },
+    {
+      "name": "General_selectall",
+      "value": "Select All  󰅂"
+    },
+    {
+      "name": "General_unselect",
+      "value": "Unselect  󰃑"
+    },
+    {
+      "name": "General_disabled",
+      "value": "Disabled  󰁕"
+    },
+    {
+      "name": "General_pardonListed",
+      "value": "Pardon listed  󰖿"
+    },
+    {
+      "name": "General_blockAll",
+      "value": "Block all  󰆨"
+    },
+    {
+      "name": "General_blockListed",
+      "value": "Block listed  󰖿"
+    },
+    {
+      "name": "General_expand",
+      "value": "Expand  󰃛"
+    },
+    {
+      "name": "General_collapse",
+      "value": "Collapse  󰃘"
+    },
+    {
+      "name": "General_export",
+      "value": "Export  󰃕"
+    },
+    {
+      "name": "General_copyLink",
+      "value": "Copy  󰊡"
+    },
+    {
+      "name": "General_pause",
+      "value": "Pause  󰂱"
+    },
+    {
+      "name": "General_continue",
+      "value": "Continue  󰂴"
+    },
+    {
+      "name": "General_view",
+      "value": "View  󰃋"
+    },
+    {
+      "name": "General_username",
+      "value": "󰙬  Username"
+    },
+    {
+      "name": "General_password",
+      "value": "󰒛  Password"
+    },
+    {
+      "name": "General_empty",
+      "value": "Nothing here. ヽ（´ー｀）┌"
+    },
+    {
+      "name": "General_noChange",
+      "value": "No changes. ヽ（´ー｀）┌"
+    },
+    {
+      "name": "ErrorPrompt_contact",
+      "value": "Nya~ if u think this is a bug or not your fault, please contact Liny to repurrt it or get heowp!"
+    },
+    {
+      "name": "Settings",
+      "value": "Settings"
+    },
+    {
+      "name": "Settings_category_onStartUp",
+      "value": "Start Up"
+    },
+    {
+      "name": "Settings_category_onStartUp_page",
+      "value": "Start up page"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_newTab",
+      "value": "New tab"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_home",
+      "value": "Home"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_continue",
+      "value": "Reopen"
+    },
+    {
+      "name": "Settings_category_onStartUp_page_nothing",
+      "value": "Nothing"
+    },
+    {
+      "name": "Settings_category_general",
+      "value": "General"
+    },
+    {
+      "name": "Settings_category_general_surf",
+      "value": "Surf"
+    },
+    {
+      "name": "Settings_category_general_surf_userAgent",
+      "value": "User-agents"
+    },
+    {
+      "name": "Settings_category_general_surf_searchEngine",
+      "value": "Search engines"
+    },
+    {
+      "name": "Settings_category_general_surf_newTabUrl",
+      "value": "New tabs URL"
+    },
+    {
+      "name": "Settings_category_general_surf_homeUrl",
+      "value": "Home URL"
+    },
+    {
+      "name": "Settings_category_general_homepage",
+      "value": "Cat's Homepage"
+    },
+    {
+      "name": "Settings_category_general_homepage_customize",
+      "value": "Customize  󰦜"
+    },
+    {
+      "name": "Settings_category_experience",
+      "value": "Experience"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu",
+      "value": "Context Menu"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_enable",
+      "value": "Enable context menu"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_trimTexts",
+      "value": "Trim / strip texts"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_imagePreview",
+      "value": "Image preview"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_imageWidth",
+      "value": "Image width"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_webPreview",
+      "value": "Web preview"
+    },
+    {
+      "name": "Settings_category_experience_contextMenu_webPreviewHeight",
+      "value": "Web height"
+    },
+    {
+      "name": "Settings_category_experience_downloads",
+      "value": "Downloads"
+    },
+    {
+      "name": "Settings_category_experience_downloads_directSave",
+      "value": "Save to 󰃅 Downloads"
+    },
+    {
+      "name": "Settings_category_experience_downloads_openOnFinish",
+      "value": "View on finish"
+    },
+    {
+      "name": "Settings_category_experience_continuation",
+      "value": "Continuation"
+    },
+    {
+      "name": "Settings_category_experience_continuation_closeApp",
+      "value": "Close app after continuation"
+    },
+    {
+      "name": "Settings_category_experience_continuation_closeTab",
+      "value": "Close tab after continuation"
+    },
+    {
+      "name": "Settings_category_experience_suggestions",
+      "value": "Suggestions"
+    },
+    {
+      "name": "Settings_category_experience_suggestions_maxBookmark",
+      "value": "Max bookmarks suggestions"
+    },
+    {
+      "name": "Settings_category_experience_suggestions_maxHistory",
+      "value": "Max history suggestions"
+    },
+    {
+      "name": "Settings_category_experience_advanced",
+      "value": "Advanced"
+    },
+    {
+      "name": "Settings_category_experience_advanced_adblocker",
+      "value": "Ad blocker"
+    },
+    {
+      "name": "Settings_category_experience_advanced_adblocker_manage",
+      "value": "Manage ad blocker  󰯊"
+    },
+    {
+      "name": "Settings_category_experience_advanced_adblocker_rules",
+      "value": "Manage block rules  󰖿"
+    },
+    {
+      "name": "Settings_category_experience_advanced_webImages",
+      "value": "Web images manager"
+    },
+    {
+      "name": "Settings_category_experience_advanced_webImages_manage",
+      "value": "Manage web images  󰢪"
+    },
+    {
+      "name": "Settings_category_experience_advanced_Js",
+      "value": "JavaScript manager"
+    },
+    {
+      "name": "Settings_category_experience_advanced_Js_manage",
+      "value": "Manage JavaScript  󰄪"
+    },
+    {
+      "name": "Settings_category_accessibility",
+      "value": "Accessibility"
+    },
+    {
+      "name": "Settings_category_accessibility_webBack",
+      "value": "System back in web"
+    },
+    {
+      "name": "Settings_category_accessibility_webKeys",
+      "value": "Key shortcuts backward in web"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand",
+      "value": "Single hand use"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_reverseSideMenus",
+      "value": "Reverse side menus 󰎥 / 󰎩"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_reverseSideBars",
+      "value": "Reverse side bars"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_reverseHomeShortcuts",
+      "value": "Reverse homepage shortcuts"
+    },
+    {
+      "name": "Settings_category_accessibility_singleHand_smartReachability",
+      "value": "Smart reachability 󰎵"
+    },
+    {
+      "name": "Settings_category_accessibility_keyShortcuts",
+      "value": "Key shortcuts"
+    },
+    {
+      "name": "Settings_category_accessibility_keyShortcuts_manage",
+      "value": "Manage shortcuts  󰌐"
+    },
+    {
+      "name": "Settings_category_appearance",
+      "value": "Appearence"
+    },
+    {
+      "name": "Settings_category_appearance_bottomAvoid",
+      "value": "Bottom avoid 󰎵 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_navigationIndicator",
+      "value": "Navigation indicator 󰎵 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_layout",
+      "value": "Layout"
+    },
+    {
+      "name": "Settings_category_appearance_layout_editButtons",
+      "value": "Manage buttons  󰗘"
+    },
+    {
+      "name": "Settings_category_appearance_layout_titleBarPosition",
+      "value": "Title bar position"
+    },
+    {
+      "name": "Settings_category_appearance_layout_tabsStyle_wide",
+      "value": "Tabs style 󰎥 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_layout_tabsStyle_slim",
+      "value": "Tabs style 󰎵"
+    },
+    {
+      "name": "Settings_category_appearance_layout_shrinkSideAreaButton",
+      "value": "Shrink side area button"
+    },
+    {
+      "name": "Settings_category_appearance_layout_shrinkSideAreaAuto",
+      "value": "Auto shrink"
+    },
+    {
+      "name": "Settings_category_appearance_layout_shrinkSideAreaNoPush",
+      "value": "No-push expansion"
+    },
+    {
+      "name": "Settings_category_appearance_windows",
+      "value": "Windows"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitle_wide",
+      "value": "Show window title 󰎥 / 󰎩"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitle_slim",
+      "value": "Show window title 󰎵"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitlePosition",
+      "value": "Title position"
+    },
+    {
+      "name": "Settings_category_appearance_windows_windowTitle_gigantic",
+      "value": "Gigantic title when no focus"
+    },
+    {
+      "name": "Settings_category_appearance_animation",
+      "value": "Animation"
+    },
+    {
+      "name": "Settings_category_appearance_animation_response",
+      "value": "Animation response"
+    },
+    {
+      "name": "Settings_category_appearance_animation_elasticity",
+      "value": "Animation elasticity"
+    },
+    {
+      "name": "Settings_category_appearance_animation_reset",
+      "value": "Reset animation  󰃈"
+    },
+    {
+      "name": "Settings_category_appearance_colors",
+      "value": "Colors"
+    },
+    {
+      "name": "Settings_category_appearance_colors_effects",
+      "value": "Advanced effects"
+    },
+    {
+      "name": "Settings_category_appearance_colors_light",
+      "value": "Light theme"
+    },
+    {
+      "name": "Settings_category_appearance_colors_dark",
+      "value": "Dark theme"
+    },
+    {
+      "name": "Settings_category_appearance_colors_reset",
+      "value": "Reset colors  󰃈"
+    },
+    {
+      "name": "Settings_category_appearance_colors_forceDarkMode",
+      "value": "Force web dark mode"
+    },
+    {
+      "name": "Settings_category_appearance_colors_forceDarkMode_manage",
+      "value": "Manage web dark mode  󰓶"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_hue",
+      "value": "Hue"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_saturation",
+      "value": "Saturation"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_value",
+      "value": "Value (Brightness)"
+    },
+    {
+      "name": "Settings_category_appearance_colors_picker_code",
+      "value": "Color code"
+    },
+    {
+      "name": "Settings_category_history",
+      "value": "History"
+    },
+    {
+      "name": "Settings_category_history_recordNew",
+      "value": "Record new history"
+    },
+    {
+      "name": "Settings_category_history_view",
+      "value": "View history  󰆄"
+    },
+    {
+      "name": "Settings_category_history_indexNow",
+      "value": "(Re)build index  󰄁"
+    },
+    {
+      "name": "Settings_category_history_indexing",
+      "value": "(Re)building...  󰄁"
+    },
+    {
+      "name": "Settings_category_history_indexLoadQuantity",
+      "value": "Index load quantity"
+    },
+    {
+      "name": "Settings_category_storage",
+      "value": "Storage"
+    },
+    {
+      "name": "Settings_category_storage_webCache",
+      "value": "Web cache"
+    },
+    {
+      "name": "Settings_category_storage_historyIndex",
+      "value": "History index files"
+    },
+    {
+      "name": "Settings_category_security",
+      "value": "Security"
+    },
+    {
+      "name": "Settings_category_security_cookies",
+      "value": "Cookies"
+    },
+    {
+      "name": "Settings_category_security_cookies_intelligentTrackingPrevention",
+      "value": "ArkWeb intelligent tracking prevention"
+    },
+    {
+      "name": "Settings_category_security_cookies_thirdPartyCookies",
+      "value": "Third-party cookies"
+    },
+    {
+      "name": "Settings_category_security_cookies_viewManage",
+      "value": "View & manage  󰀩"
+    },
+    {
+      "name": "Settings_category_cardboardBox",
+      "value": "Cardboard Box"
+    },
+    {
+      "name": "Settings_category_cardboardBox_debug",
+      "value": "Debug"
+    },
+    {
+      "name": "Settings_category_cardboardBox_debug_resourceMonitor",
+      "value": "Resource monitor"
+    },
+    {
+      "name": "Settings_category_cardboardBox_debug_faultLogs",
+      "value": "Fault logs  󰀩"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup",
+      "value": "Backup"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_settings_desc",
+      "value": "Export settings for backup or other purposes:"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_settings_export",
+      "value": "Export settings  󰃕"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_settings_import",
+      "value": "Import settings  󰙧"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_everything_desc",
+      "value": "Or export a full data backup—including bookmarks, history, settings, etc. — packed into a single file!"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_everything_export",
+      "value": "Export all data  󰃕"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_everything_import",
+      "value": "Import all data  󰙧"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok",
+      "value": "Import OK!"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok_desc",
+      "value": "No prawblem! You may need to restart the App to apply all new stuffs!"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok_partial",
+      "value": "Import OK! (partially)"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_ok_partial_desc",
+      "value": "We could only find some of the files we were looking for! "
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_fail",
+      "value": "Import failed... ゞ◎Д◎ヾ"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_fail_extract",
+      "value": "The import and decompression failed. Is the file corrupted?"
+    },
+    {
+      "name": "Settings_category_cardboardBox_backup_import_result_fail_decode",
+      "value": "The import and decoding failed. Is the file corrupted?"
+    },
+    {
+      "name": "Settings_category_about",
+      "value": "About"
+    },
+    {
+      "name": "Settings_category_about_site_bilibili",
+      "value": "Liny's bilibili page  󰃭"
+    },
+    {
+      "name": "Settings_category_about_site_github",
+      "value": "Github repo  󰇶"
+    },
+    {
+      "name": "Settings_category_about_site_gitee",
+      "value": "Gitee repo  󰮰"
+    },
+    {
+      "name": "Settings_category_about_thank",
+      "value": "Thank you! My friend! For having a try on this even more chaotic browser in a life that's already chaotic enough! :3"
+    },
+    {
+      "name": "Settings_category_about_credits",
+      "value": "Credits  󰈘"
+    },
+    {
+      "name": "Settings_category_about_update",
+      "value": "Updates"
+    },
+    {
+      "name": "Settings_category_about_update_history",
+      "value": "Update history  󰣚"
+    },
+    {
+      "name": "Settings_category_deveowlopers",
+      "value": "Deveowlopers"
+    },
+    {
+      "name": "Settings_category_deveowlopers_on",
+      "value": "Deveowlopers options"
+    },
+    {
+      "name": "Settings_category_deveowlopers_openPanel",
+      "value": "CatsDev panel  󰊀"
+    },
+    {
+      "name": "Bookmarks",
+      "value": "Bookmarks"
+    },
+    {
+      "name": "Bookmarks_selectFolder",
+      "value": "Pick a Folder"
+    },
+    {
+      "name": "Bookmarks_drop",
+      "value": "Drop to add / move into this folder!"
+    },
+    {
+      "name": "Homepage",
+      "value": "Cat's Home Page"
+    },
+    {
+      "name": "Homepage_backdrop",
+      "value": "Backdrop"
+    },
+    {
+      "name": "Homepage_backdrop_selectFromFiles",
+      "value": "Select from Files  󰃅"
+    },
+    {
+      "name": "Homepage_backdrop_selectFromGallery",
+      "value": "Select from Gallery  󰓥"
+    },
+    {
+      "name": "Homepage_shortcuts",
+      "value": "Bookmark Shortcuts"
+    },
+    {
+      "name": "Homepage_shortcuts_initialHeight",
+      "value": "Initial height of shortcuts list"
+    },
+    {
+      "name": "AdBlocker",
+      "value": "Ad Blocker"
+    },
+    {
+      "name": "AdBlocker_tutorial",
+      "value": "Once ad blocking is on, these domains get a paw-don from the Great Filter! You can also turn this whole feature off at the bottom."
+    },
+    {
+      "name": "AdBlocker_rules",
+      "value": "Ad Blocker Rules"
+    },
+    {
+      "name": "AdBlocker_rules_tutorial",
+      "value": "Only accepts EasyList rules ／(=∵=)＼"
+    },
+    {
+      "name": "WebImages",
+      "value": "Web Images Blocklist"
+    },
+    {
+      "name": "WebImages_tutorial",
+      "value": "Through settings here, we can choose to block all / some domains' web images!"
+    },
+    {
+      "name": "JavaScripts",
+      "value": "Web JS Blocklist"
+    },
+    {
+      "name": "JavaScripts_tutorial",
+      "value": "Through settings here, we can choose to block all / some domains' web JavaScripts!"
+    },
+    {
+      "name": "Dark",
+      "value": "Force Dark Mode"
+    },
+    {
+      "name": "Dark_tutorial",
+      "value": "Once dark mode is on, these domains get a paw-don from the Great Darkener! You can also turn this whole feature off at the bottom."
+    },
+    {
+      "name": "KeyShortcuts",
+      "value": "Keyboard Shortcuts"
+    },
+    {
+      "name": "KeyShortcuts_newTab",
+      "value": "󰀵  New tab"
+    },
+    {
+      "name": "KeyShortcuts_closeTab",
+      "value": "󰁖  Close tab"
+    },
+    {
+      "name": "KeyShortcuts_showTabs",
+      "value": "󰨴  Show tabs bar"
+    },
+    {
+      "name": "KeyShortcuts_focusAddress",
+      "value": "󰁱  Focus address bar"
+    },
+    {
+      "name": "KeyShortcuts_searchInPage",
+      "value": "󰖳  Find in page"
+    },
+    {
+      "name": "KeyShortcuts_fullscreen",
+      "value": "󰖶  Fullscreen"
+    },
+    {
+      "name": "KeyShortcuts_history",
+      "value": "󰏕  History"
+    },
+    {
+      "name": "KeyShortcuts_refresh",
+      "value": "󰃈  Refresh"
+    },
+    {
+      "name": "KeyShortcuts_print",
+      "value": "󰆙  Print page"
+    },
+    {
+      "name": "KeyShortcuts_newWindow",
+      "value": "󰒢  New window"
+    },
+    {
+      "name": "KeyShortcuts_pin",
+      "value": "󰀲  Pin window to top"
+    },
+    {
+      "name": "KeyShortcuts_save",
+      "value": "󰀻  Save / archive page"
+    },
+    {
+      "name": "KeyShortcuts_fullscreenWindowed",
+      "value": "󰃍  Windowed fullscreen"
+    },
+    {
+      "name": "KeyShortcuts_esc",
+      "value": "󰃊  Escape / back"
+    },
+    {
+      "name": "KeyShortcuts_showSidebar",
+      "value": "󰨴  Show sidebar"
+    },
+    {
+      "name": "Buttons",
+      "value": "Manage Buttons"
+    },
+    {
+      "name": "Buttons_control",
+      "value": "Control area (left)"
+    },
+    {
+      "name": "Buttons_addressBarOnFocus",
+      "value": "Address bar (show on focus)"
+    },
+    {
+      "name": "Buttons_addressBar",
+      "value": "Address bar"
+    },
+    {
+      "name": "Buttons_title",
+      "value": "Title area (right)"
+    },
+    {
+      "name": "Buttons_more",
+      "value": "More"
+    },
+    {
+      "name": "Buttons_notice",
+      "value": "You should keep at least one Settings 󰀠 button on any of the slots!"
+    },
+    {
+      "name": "History",
+      "value": "󰏕"
+    },
+    {
+      "name": "History_search_fast",
+      "value": "Quick  󰇝"
+    },
+    {
+      "name": "History_search_full",
+      "value": "Full  󰊮"
+    },
+    {
+      "name": "FaultLogs",
+      "value": "Fault Logs"
+    },
+    {
+      "name": "Cookies",
+      "value": "Cookies"
+    },
+    {
+      "name": "Cookies_clearAll",
+      "value": "Clear ALL cookies of ALL domains  󰀁"
+    },
+    {
+      "name": "ResMonitor_CPU",
+      "value": "CPU"
+    },
+    {
+      "name": "ResMonitor_VRAM",
+      "value": "VRAM"
+    },
+    {
+      "name": "ResMonitor_PSS",
+      "value": "Physical"
+    },
+    {
+      "name": "ResMonitor_VSS",
+      "value": "Virtual"
+    },
+    {
+      "name": "ResMonitor_nativeHeap",
+      "value": "Native Heap"
+    },
+    {
+      "name": "ResMonitor_sharedDirty",
+      "value": "Shared Dirty"
+    },
+    {
+      "name": "ResMonitor_privateDirty",
+      "value": "Private Dirty"
+    },
+    {
+      "name": "Updates",
+      "value": "Update History"
+    },
+    {
+      "name": "Orientation_select_0",
+      "value": "UNSPECIFIED / x Control Center"
+    },
+    {
+      "name": "Orientation_select_1",
+      "value": "PORTRAIT"
+    },
+    {
+      "name": "Orientation_select_2",
+      "value": "LANDSCAPE"
+    },
+    {
+      "name": "Orientation_select_3",
+      "value": "PORTRAIT INVERTED"
+    },
+    {
+      "name": "Orientation_select_4",
+      "value": "LANDSCAPE INVERTED"
+    },
+    {
+      "name": "Orientation_select_5",
+      "value": "AUTO / x Control Center"
+    },
+    {
+      "name": "Orientation_select_6",
+      "value": "AUTO PORTRAIT / x Control Center"
+    },
+    {
+      "name": "Orientation_select_7",
+      "value": "AUTO LANDSCAPE / x Control Center"
+    },
+    {
+      "name": "Orientation_select_8",
+      "value": "AUTO / √ Control Center / x System Limits"
+    },
+    {
+      "name": "Orientation_select_9",
+      "value": "AUTO PORTRAIT / √ Control Center"
+    },
+    {
+      "name": "Orientation_select_10",
+      "value": "AUTO LANDSCAPE / √ Control Center"
+    },
+    {
+      "name": "Orientation_select_11",
+      "value": "LOCKED"
+    },
+    {
+      "name": "Orientation_select_12",
+      "value": "AUTO / √ Control Center / √ System Limits"
+    },
+    {
+      "name": "Orientation_select_13",
+      "value": "TEMP PORTRAIT"
+    },
+    {
+      "name": "Orientation_select_14",
+      "value": "TEMP LANDSCAPE"
+    },
+    {
+      "name": "Orientation_select_15",
+      "value": "TEMP PORTRAIT INVERTED"
+    },
+    {
+      "name": "Orientation_select_16",
+      "value": "TEMP LANDSCAPE INVERTED"
+    },
+    {
+      "name": "Orientation_select_17",
+      "value": "FOLLOW DESKTOP"
+    },
+    {
+      "name": "Fullscreen_full",
+      "value": "Fullscreen"
+    },
+    {
+      "name": "Fullscreen_windowed",
+      "value": "Windowed"
+    },
+    {
+      "name": "QR",
+      "value": "QR Code"
+    },
+    {
+      "name": "QuickUA",
+      "value": "Quick UA Switch"
+    },
+    {
+      "name": "QuickSE",
+      "value": "Re-Search On"
+    },
+    {
+      "name": "UserCredits",
+      "value": "Credits"
+    },
+    {
+      "name": "ScratchingBoard_drop",
+      "value": "Drop to Scratching Board!"
+    },
+    {
+      "name": "Jump_title",
+      "value": "Jump?"
+    },
+    {
+      "name": "Jump_from",
+      "value": "From "
+    },
+    {
+      "name": "SslError_title",
+      "value": "SSL Error Warning! Proceed?"
+    },
+    {
+      "name": "WebPermissions_title",
+      "value": "Permission requests!"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_MIDI_SYSEX",
+      "value": "󰂬  MIDI SYSEX"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_VIDEO_CAPTURE",
+      "value": "󰑛  Video capture, e.g. the camera"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_AUDIO_CAPTURE",
+      "value": "󰀆  Audio capture, e.g. the microphone"
+    },
+    {
+      "name": "WebPermissions_desc_TYPE_SENSOR",
+      "value": "󰊢  Sensors, e.g. the accelerometer"
+    },
+    {
+      "name": "ScreenCapture_title",
+      "value": "Allow screen capture?"
+    },
+    {
+      "name": "Geolocation_title",
+      "value": "Allow geolocation access?"
+    },
+    {
+      "name": "HttpAuth_title",
+      "value": "Log in to"
+    },
+    {
+      "name": "Downloads_title",
+      "value": "Downloads"
+    },
+    {
+      "name": "Downloads_custom",
+      "value": "Custom Download"
+    },
+    {
+      "name": "Downloads_overview",
+      "value": "Overview"
+    },
+    {
+      "name": "Downloads_state_in_progress",
+      "value": "󰣚  In Progress"
+    },
+    {
+      "name": "Downloads_state_completed",
+      "value": "󰤎  Completed"
+    },
+    {
+      "name": "Downloads_state_canceled",
+      "value": "󰁕  Canceled"
+    },
+    {
+      "name": "Downloads_state_interrupted",
+      "value": "󰄊  Interrupted"
+    },
+    {
+      "name": "Downloads_state_pending",
+      "value": "󰃯  Pending"
+    },
+    {
+      "name": "Downloads_state_paused",
+      "value": "󰂰  Paused"
+    },
+    {
+      "name": "Downloads_state_unknown",
+      "value": "󰄀  Unknown"
+    },
+    {
+      "name": "SearchInPage_noTab",
+      "value": "No page opened... ┐(￣ヮ￣)┌"
+    },
+    {
+      "name": "WindowAlias_illegalChars",
+      "value": "Special characters not supported: \\ / : * ? \" < > |"
+    },
+    {
+      "name": "Permission_reason_INTERNET",
+      "value": "Let the BrowserCat visit the web!"
+    },
+    {
+      "name": "Permission_reason_DETECT_GESTURES",
+      "value": "Let the BrowserCat know what hand you are using and help BrowserCat optimize layout!"
+    },
+    {
+      "name": "Permission_reason_WINDOW_TOPMOST",
+      "value": "Show BrowserCat on top of other things!"
+    },
+    {
+      "name": "Permission_reason_CAMERA",
+      "value": "Let web pages in BrowserCat access the camera!"
+    },
+    {
+      "name": "Permission_reason_MICROPHONE",
+      "value": "Let web pages in BrowserCat access the microphone!"
+    },
+    {
+      "name": "Permission_reason_ACCELEROMETER",
+      "value": "Let web pages in BrowserCat access the accelerometer!"
+    },
+    {
+      "name": "Permission_reason_GYROSCOPE",
+      "value": "Let web pages in BrowserCat access the gyroscope!"
+    },
+    {
+      "name": "Permission_reason_SHORT_TERM_WRITE_IMAGEVIDEO",
+      "value": "Let web pages in BrowserCat save files!"
+    },
+    {
+      "name": "Permission_reason_ACCESS_FIDO2_ONLINEAUTH",
+      "value": "Let web pages in BrowserCat utilize the FIDO2 online authentication!"
+    },
+    {
+      "name": "Permission_reason_ACCESS_CERT_MANAGER",
+      "value": "Let web pages in BrowserCat access the device certificate manager and pass online authentications!"
+    },
+    {
+      "name": "Permission_reason_READ_PASTEBOARD",
+      "value": "Let web pages in BrowserCat read the pasteboard!"
+    },
+    {
+      "name": "Permission_reason_LOCATION",
+      "value": "Let web pages in BrowserCat access your precise location!"
+    },
+    {
+      "name": "Permission_reason_APPROXIMATELY_LOCATION",
+      "value": "Let web pages in BrowserCat access your approximate location!"
+    },
+    {
+      "name": "Permission_reason_LOCK_WINDOW_CURSOR",
+      "value": "Let web pages in BrowserCat lock the window cursor!"
+    },
+    {
+      "name": "Permission_reason_PRINT",
+      "value": "Let web pages in BrowserCat use the printers!"
+    }
+  ]
+}
