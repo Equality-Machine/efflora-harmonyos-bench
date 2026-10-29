@@ -129,11 +129,6 @@ harbor run -p tasks/bugfix-notepad-crash-on-empty-title -a claude-code -m anthro
 
 欢迎贡献新任务、改进评测环境或报告问题！请先阅读[贡献指南](CONTRIBUTING.md)。
 
-```bash
-harbor task init efflora/bugfix-myapp-some-issue -p tasks --no-pytest
-python3 scripts/validate_tasks.py tasks/bugfix-myapp-some-issue
-```
-
 ## 许可证
 
 本仓库代码、任务说明与测试脚本采用 [Apache License 2.0](LICENSE) 授权。

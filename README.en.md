@@ -129,11 +129,6 @@ Results are written to `jobs/` by default. See the [evaluation guide](docs/evalu
 
 Contributions of new tasks, evaluation environment improvements and issue reports are welcome! Please read the [contributing guide](CONTRIBUTING.md) first.
 
-```bash
-harbor task init efflora/bugfix-myapp-some-issue -p tasks --no-pytest
-python3 scripts/validate_tasks.py tasks/bugfix-myapp-some-issue
-```
-
 ## License
 
 Code, task instructions and tests are licensed under [Apache-2.0](LICENSE). Third-party upstream projects used by tasks keep their original licenses (see each task's `metadata.upstream_license` and [NOTICE](NOTICE)). The HarmonyOS SDK is governed by Huawei's own terms and is not distributed here.
