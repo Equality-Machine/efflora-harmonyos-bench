@@ -28,9 +28,15 @@ Emulator -create Pura90Pro -deviceType Phone -osVersion "HarmonyOS 6.1.1(24)" -s
 mkdir -p -m 700 /tmp/hemu-xdg
 QT_QPA_PLATFORM=offscreen XDG_RUNTIME_DIR=/tmp/hemu-xdg nohup Emulator -start Pura90Pro \
   -instancePath ~/hemu/instances -imageRoot ~/hemu/sdk -noWindow >/dev/null 2>&1 &
+
+# 开机后（约 1 分钟）确认 hdc 看得到模拟器；对外监听的 hdc server 不会自动发现它，列表为空就手动连一次
+hdc list targets
+hdc tconn 127.0.0.1:5555                          # 端口以 Emulator 实际监听的为准（ss -ltnp | grep Emulator）
 ```
 
 8710 端口对局域网开放了，记得用防火墙限制。
+
+如果模拟器先于 hdc server 启动，它会自己拉起一个只监听 127.0.0.1 的 hdc server，占住 8710 端口。`hdc kill` 之后要紧接着启动 `0.0.0.0:8710` 的 server（像上面那样写在同一行），中间不要停顿；启动后用 `pgrep -af "hdc -m"` 确认监听地址是 `0.0.0.0:8710`。
 
 ## 2. 第一次开机后设置一下
 
@@ -70,6 +76,8 @@ harbor run -y -p tasks -a <agent> -m <provider/model>
 | 提示缺少 `EFFLORA_DEVICE_SN` | 设置模拟器编号 |
 | 检查时说找不到这台设备 | 模拟器没开，或者编号变了，重新 `hdc list targets` |
 | Linux 上检查时连不上 hdc | 确认 hdc 是用 `0.0.0.0:8710` 启动的，`EFFLORA_HDC_SERVER` 填的是宿主机 IP |
+| Linux 上 `hdc -m -s 0.0.0.0:8710` 起不来，日志里有 `Other instance already running` | 模拟器已经拉起了只监听本机的 hdc server，执行 `hdc kill` 后立刻重新启动，见第 1 步 |
+| Linux 上模拟器已开机，但 `hdc list targets` 为空 | 执行 `hdc tconn 127.0.0.1:5555` 手动连上模拟器，见第 1 步 |
 | 检查时说语言或时区不对 | 按第 2 步改 |
 | 测试全部失败，画面上有输入法弹窗 | 第 2 步的输入法协议没同意 |
 | 构建时去网上拉 `efflora/harmonyos-base` 失败 | 运行时加上 `BUILDX_BUILDER=default` |
