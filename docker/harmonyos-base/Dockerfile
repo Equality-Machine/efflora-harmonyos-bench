@@ -27,7 +27,8 @@ RUN if [ -n "$APT_MIRROR" ]; then \
 RUN --mount=type=bind,source=${TOOLS_ZIP},target=/tmp/tools.zip \
     set -eu; \
     mkdir -p /tmp/clt && unzip -q /tmp/tools.zip -d /tmp/clt; \
-    root=$(dirname "$(dirname "$(find /tmp/clt -path '*/bin/hvigorw' -type f | head -1)")"); \
+    # 压缩包里还有 hvigor/bin/hvigorw，find 的返回顺序随文件系统而变，须排除它，否则会把 hvigor/ 误当成工具链根目录
+    root=$(dirname "$(dirname "$(find /tmp/clt -path '*/bin/hvigorw' -not -path '*/hvigor/bin/hvigorw' -type f | head -1)")"); \
     [ -d "$root" ] || { echo "工具链压缩包中没有 bin/hvigorw" >&2; exit 1; }; \
     mv "$root" /opt/command-line-tools && rm -rf /tmp/clt; \
     mkdir -p /opt/harmonyos; \
