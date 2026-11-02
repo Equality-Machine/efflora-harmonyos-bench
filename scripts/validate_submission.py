@@ -13,7 +13,7 @@
             └── verifier/
 
 用法：
-    python3 scripts/validate_submission.py <submission-dir> [--tasks-root tasks] [--min-trials 3]
+    python3 scripts/validate_submission.py <submission-dir> [--tasks-root tasks] [--min-trials 3] [--category spec ...]
 """
 import argparse
 import json
@@ -35,6 +35,7 @@ REQUIRED_METADATA = [
 ]
 HARBOR_VERSION = "0.24.0"
 TASK_ORG = "efflora/"
+CATEGORIES = ["feature", "bugfix", "spec"]
 REQUIRED_MODEL_FIELDS = ["model_name", "model_provider", "model_display_name", "model_org_display_name"]
 # 这些配置项必须保持默认值，否则结果不可比
 MUST_BE_NULL = {
@@ -71,7 +72,8 @@ def check_metadata(sub: Path, errors: list[str]) -> None:
 
 
 def check_job_config(job: Path, config: dict, errors: list[str]) -> None:
-    if config.get("timeout_multiplier") != 1.0:
+    # Harbor 0.24.0 的 job config.json 不写出默认值，缺失即为默认 1.0
+    if config.get("timeout_multiplier") not in (None, 1.0):
         errors.append(f"{job.name}: timeout_multiplier must be 1.0")
     for key in MULTIPLIERS:
         if config.get(key) not in (None, 1.0):
@@ -114,6 +116,12 @@ def main() -> int:
     parser.add_argument("submission", type=Path)
     parser.add_argument("--tasks-root", type=Path, default=ROOT / "tasks")
     parser.add_argument("--min-trials", type=int, default=3)
+    parser.add_argument(
+        "--category",
+        action="append",
+        choices=CATEGORIES,
+        help="只要求覆盖该分类（按任务 id 前缀）的任务，可重复；默认要求覆盖全部任务",
+    )
     args = parser.parse_args()
 
     sub = args.submission.resolve()
@@ -138,12 +146,15 @@ def main() -> int:
                 trial_counts[task_name] += 1
 
     expected = {p.name for p in args.tasks_root.iterdir() if (p / "task.toml").is_file()}
+    if args.category:
+        expected = {t for t in expected if t.split("-", 1)[0] in args.category}
     missing = sorted(expected - trial_counts.keys())
     if missing:
         errors.append(f"{len(missing)} task(s) not evaluated: {', '.join(missing[:10])}{' …' if len(missing) > 10 else ''}")
     unknown = sorted(trial_counts.keys() - expected)
     if expected and unknown:
-        warnings.append(f"trials for tasks not in {args.tasks_root}: {', '.join(unknown[:10])}")
+        scope = f"categories {', '.join(args.category)}" if args.category else str(args.tasks_root)
+        warnings.append(f"trials for tasks not in {scope}: {', '.join(unknown[:10])}")
     few = sorted(t for t, n in trial_counts.items() if n < args.min_trials)
     if few:
         errors.append(f"{len(few)} task(s) have fewer than {args.min_trials} trials: {', '.join(few[:10])}")

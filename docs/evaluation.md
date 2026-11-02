@@ -85,9 +85,12 @@ notes: ""                             # 其他说明
 ```bash
 pip install -r scripts/requirements.txt
 python3 scripts/validate_submission.py <agent>__<model>
+
+# 只评测了部分分类时，用 --category 指定（可重复）
+python3 scripts/validate_submission.py <agent>__<model> --category spec
 ```
 
-校验内容：`metadata.yaml` 必填字段（含 `harbor_version` 须为 `0.24.0`）；job 配置未覆盖超时/资源/verifier；每个 trial 有 `result.json`、`agent/`、`verifier/`；覆盖当前版本全部任务且每个任务 ≥ 3 次 trial；大文件可走 LFS。
+校验内容：`metadata.yaml` 必填字段（含 `harbor_version` 须为 `0.24.0`）；job 配置未覆盖超时/资源/verifier；每个 trial 有 `result.json`、`agent/`、`verifier/`；覆盖当前版本全部任务（指定 `--category` 时为该分类的全部任务）且每个任务 ≥ 3 次 trial；大文件可走 LFS。
 
 ### 3. 向 HuggingFace 数据集发起 PR
 
