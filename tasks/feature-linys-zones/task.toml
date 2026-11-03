@@ -58,7 +58,6 @@ DEVICE_SN = "${EFFLORA_DEVICE_SN}"
 [agent]
 timeout_sec = 10800.0
 user = "agent"
-# agent 阶段只允许访问模型 API，防止从 github/gitee 等直接取到上游实现。
 # 其他 agent 用 `harbor run --allow-agent-host <域名>` 追加。
 network_mode = "allowlist"
 allowed_hosts = ["api.anthropic.com"]
