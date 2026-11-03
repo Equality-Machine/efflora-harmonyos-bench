@@ -1,0 +1,11 @@
+# 构建前要还原成 baseline 版本的路径（相对于 /workspace/app）。可以是文件，也可以是目录。
+# 用 `python3 verify.py baseline --app <base 工程> --tests-dir <tests>` 生成 tests/baseline/。
+# baseline 中不存在的路径，agent 新建的同名文件会被删除。
+build-profile.json5
+entry/build-profile.json5
+hvigor
+hvigorfile.ts
+entry/hvigorfile.ts
+oh-package.json5
+entry/oh-package.json5
+entry/src/ohosTest

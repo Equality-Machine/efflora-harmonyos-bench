@@ -1,0 +1,71 @@
+{
+  "bundle_name": "com.harmonybench.cogit.nf8",
+  "toolchain_expect": {
+    "clt": "6.1.1.418"
+  },
+  "device_expect": {
+    "const.ohos.apiversion": "24",
+    "const.ohos.fullname": "OpenHarmony-6.1.1.125",
+    "persist.global.locale": "zh-Hans-CN",
+    "persist.time.timezone": "Asia/Shanghai",
+    "display": "1256x2760"
+  },
+  "cleanup_bundle_prefixes": [
+    "com.harmonybench.cogit."
+  ],
+  "module": "entry",
+  "module_dir": "entry",
+  "product": "default",
+  "test_module_name": "entry_test",
+  "test_runner": "/ets/testrunner/OpenHarmonyTestRunner",
+  "test_timeout_ms": 420000,
+  "fpoint_timeout_sec": 480,
+  "reinstall_per_fpoint": true,
+  "test_log_tag": "NF8Cogit",
+  "inject": {
+    "ohosTest": "entry/src/ohosTest"
+  },
+  "device_prep": [],
+  "fpoints": [
+    {
+      "id": "FP1_create",
+      "test": [
+        "NF8_Create#FP1_p1_create",
+        "NF8_Create#FP1_p2_restart"
+      ],
+      "desc": "预测日志右上角「＋」且「统计」仍在（#15）→ 新建预测：空表单不能保存（#9）→ 保存后列表出现、待结算 +1（#1）→ 系统返回首页，待结算数与待结算卡片更新（#2）→ 冷启动后仍在（#7）"
+    },
+    {
+      "id": "FP2_settle_detail",
+      "test": [
+        "NF8_SettleDetail#FP2_p1_setup",
+        "NF8_SettleDetail#FP2_p2_settle_detail",
+        "NF8_SettleDetail#FP2_p3_restart"
+      ],
+      "desc": "新建两条结算日为今天的预测；在「预测详情」结算（命中 / 未命中）后不离开详情页，状态 / 命中 / 实际结果三行显示新值（#3），结算入口消失（#4）；冷启动后保持（#7）"
+    },
+    {
+      "id": "FP3_settle_effects",
+      "test": [
+        "NF8_SettleEffects#FP3_p1_setup",
+        "NF8_SettleEffects#FP3_p2_settle_effects",
+        "NF8_SettleEffects#FP3_p3_restart"
+      ],
+      "desc": "结算后列表计数与「已结算 / 待结算」筛选（#1 #6）、系统返回首页后待结算数 / 命中率 / 待结算卡片（#2）、未命中计入命中率分母（#8）、统计页（#5）、冷启动保持（#7）"
+    },
+    {
+      "id": "R_note",
+      "test": [
+        "R_Note#R_note_save",
+        "R_Note#R_note_restart"
+      ],
+      "desc": "回归（base 行为）：首页「＋ 速记」记一条并保存，冷启动后首页「最近速记」里有它"
+    },
+    {
+      "id": "R_upstream_ability",
+      "test": "ActsAbilityTest#assertContain",
+      "desc": "上游 ohosTest 自带用例，保留"
+    }
+  ],
+  "device_lock_wait_sec": 7200
+}

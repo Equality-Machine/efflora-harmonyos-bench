@@ -1,0 +1,13 @@
+{
+  "modelVersion": "6.1.1",
+  "name": "cogit-lucid-workbench",
+  "version": "1.0.0",
+  "description": "元认知外化工作台 · HarmonyOS 客户端",
+  "dependencies": {
+    "@ohos/mpchart": "3.1.0-rc.0"
+  },
+  "devDependencies": {
+    "@ohos/hypium": "1.0.24"
+  },
+  "dynamicDependencies": {}
+}

@@ -1,0 +1,1058 @@
+diff --git a/entry/src/main/ets/app/HomeRefreshBus.ts b/entry/src/main/ets/app/HomeRefreshBus.ts
+new file mode 100644
+index 0000000..b9fee14
+--- /dev/null
++++ b/entry/src/main/ets/app/HomeRefreshBus.ts
+@@ -0,0 +1,31 @@
++type RefreshListener = () => void;
++
++const listeners: RefreshListener[] = [];
++
++/** Registers the dashboard refresh callback; duplicate registrations are ignored. */
++export function subscribeHomeRefresh(listener: RefreshListener): void {
++  if (!listeners.includes(listener)) {
++    listeners.push(listener);
++  }
++}
++
++/** Removes one dashboard refresh callback. */
++export function unsubscribeHomeRefresh(listener: RefreshListener): void {
++  const next: RefreshListener[] = [];
++  for (const item of listeners) {
++    if (item !== listener) {
++      next.push(item);
++    }
++  }
++  listeners.length = 0;
++  for (const item of next) {
++    listeners.push(item);
++  }
++}
++
++/** Notifies the dashboard after a local record changes. */
++export function notifyHomeRefresh(): void {
++  for (const listener of listeners.slice()) {
++    listener();
++  }
++}
+diff --git a/entry/src/main/ets/navigation/RouteParams.ts b/entry/src/main/ets/navigation/RouteParams.ts
+index a1cbc7e..b65d4ef 100644
+--- a/entry/src/main/ets/navigation/RouteParams.ts
++++ b/entry/src/main/ets/navigation/RouteParams.ts
+@@ -24,6 +24,11 @@ export interface PredictionDetailParams {
+   predictionId: string;
+ }
+ 
++/** Parameters accepted by the prediction settle route. */
++export interface PredictionSettleParams {
++  predictionId: string;
++}
++
+ /** Parameters accepted by the note detail route. */
+ export interface NoteDetailParams {
+   noteId: string;
+diff --git a/entry/src/main/ets/navigation/Routes.ts b/entry/src/main/ets/navigation/Routes.ts
+index 979cdac..a6e0ec3 100644
+--- a/entry/src/main/ets/navigation/Routes.ts
++++ b/entry/src/main/ets/navigation/Routes.ts
+@@ -6,6 +6,8 @@ export const ROUTES = {
+   PREDICTION_LIST: 'prediction_list',
+   PREDICTION_DETAIL: 'prediction_detail',
+   PREDICTION_STATS: 'prediction_stats',
++  PREDICTION_CREATE: 'prediction_create',
++  PREDICTION_SETTLE: 'prediction_settle',
+   REVIEW: 'review',
+   REVIEW_HISTORY: 'review_history',
+   REVIEW_DETAIL: 'review_detail',
+diff --git a/entry/src/main/ets/pages/Index.ets b/entry/src/main/ets/pages/Index.ets
+index 0d1a9ce..da58530 100644
+--- a/entry/src/main/ets/pages/Index.ets
++++ b/entry/src/main/ets/pages/Index.ets
+@@ -7,6 +7,8 @@ import { NoteDetailPage } from './NoteDetailPage';
+ import { PredictionListPage } from './PredictionListPage';
+ import { PredictionDetailPage } from './PredictionDetailPage';
+ import { PredictionStatsPage } from './PredictionStatsPage';
++import { PredictionCreatePage } from './PredictionCreatePage';
++import { PredictionSettlePage } from './PredictionSettlePage';
+ import { ReviewPage } from './ReviewPage';
+ import { AnchorPage } from './AnchorPage';
+ import { RelationListPage } from './RelationListPage';
+@@ -34,6 +36,10 @@ struct Index {
+       PredictionDetailPage()
+     } else if (name === ROUTES.PREDICTION_STATS) {
+       PredictionStatsPage()
++    } else if (name === ROUTES.PREDICTION_CREATE) {
++      PredictionCreatePage()
++    } else if (name === ROUTES.PREDICTION_SETTLE) {
++      PredictionSettlePage()
+     } else if (name === ROUTES.REVIEW) {
+       ReviewPage()
+     } else if (name === ROUTES.ANCHOR) {
+diff --git a/entry/src/main/ets/pages/PredictionCreatePage.ets b/entry/src/main/ets/pages/PredictionCreatePage.ets
+new file mode 100644
+index 0000000..ad380ee
+--- /dev/null
++++ b/entry/src/main/ets/pages/PredictionCreatePage.ets
+@@ -0,0 +1,257 @@
++import { AppTheme } from '../theme/AppTheme';
++import { SectionCard } from '../components/SectionCard';
++import {
++  MAX_JUDGMENT_LENGTH,
++  MAX_REASON_LENGTH,
++  MAX_TARGET_LENGTH,
++  PredictionDraft,
++  PredictionDraftErrors,
++  PredictionService,
++  dateAfterDays,
++  hasPredictionErrors,
++  validatePredictionDraft
++} from '../prediction';
++import { notifyHomeRefresh } from '../app/HomeRefreshBus';
++
++const EMPTY_ERRORS: PredictionDraftErrors = {
++  target: '',
++  judgment: '',
++  confidence: '',
++  settlementDate: ''
++};
++
++/** Creates one prediction; nothing is persisted until the commit button is pressed. */
++@ComponentV2
++export struct PredictionCreatePage {
++  @Local target: string = '';
++  @Local judgment: string = '';
++  @Local reason: string = '';
++  @Local confidence: number = 70;
++  @Local settlementDate: string = '';
++  @Local errors: PredictionDraftErrors = EMPTY_ERRORS;
++  @Local isSaving: boolean = false;
++  private navStack: NavPathStack | null = null;
++
++  aboutToAppear(): void {
++    this.settlementDate = dateAfterDays(Date.now(), 7);
++  }
++
++  private useDeadline(days: number): void {
++    this.settlementDate = dateAfterDays(Date.now(), days);
++    this.errors = { target: this.errors.target, judgment: this.errors.judgment,
++      confidence: this.errors.confidence, settlementDate: '' };
++  }
++
++  private async save(): Promise<void> {
++    if (this.isSaving) {
++      return;
++    }
++    const draft: PredictionDraft = {
++      target: this.target,
++      judgment: this.judgment,
++      confidence: this.confidence,
++      reason: this.reason,
++      settlementDate: this.settlementDate
++    };
++    const errors = validatePredictionDraft(draft);
++    this.errors = errors;
++    if (hasPredictionErrors(errors)) {
++      return;
++    }
++
++    const hostContext = this.getUIContext().getHostContext();
++    if (hostContext === undefined) {
++      this.getUIContext().getPromptAction().showToast({ message: '运行环境未就绪' });
++      return;
++    }
++    this.isSaving = true;
++    try {
++      const service = await PredictionService.open(hostContext);
++      await service.create(draft);
++      notifyHomeRefresh();
++      this.getUIContext().getPromptAction().showToast({ message: '预测已落盘，不能修改' });
++      if (this.navStack !== null) {
++        this.navStack.pop(true);
++      }
++    } catch (error) {
++      this.getUIContext().getPromptAction().showToast({ message: '保存失败，请重试' });
++    } finally {
++      this.isSaving = false;
++    }
++  }
++
++  @Builder
++  fieldError(message: string) {
++    if (message.length > 0) {
++      Text(message)
++        .fontSize(10)
++        .fontColor(AppTheme.color.danger)
++        .width('100%')
++    }
++  }
++
++  @Builder
++  deadlineChip(label: string, days: number) {
++    Text(label)
++      .fontSize(11)
++      .fontColor(AppTheme.color.primaryDeep)
++      .padding({ left: 10, right: 10, top: 5, bottom: 5 })
++      .backgroundColor(AppTheme.color.tint)
++      .borderRadius(12)
++      .onClick(() => {
++        this.useDeadline(days);
++      })
++  }
++
++  build() {
++    NavDestination() {
++      Column() {
++        Scroll() {
++          Column({ space: 12 }) {
++            SectionCard() {
++              Column({ space: 6 }) {
++                Text('预测对象')
++                  .fontSize(11)
++                  .fontColor(AppTheme.color.textSecondary)
++                  .width('100%')
++                TextInput({ placeholder: '例如：本周作息', text: this.target })
++                  .maxLength(MAX_TARGET_LENGTH)
++                  .backgroundColor('#F7F6F2')
++                  .onChange((value: string) => {
++                    this.target = value;
++                  })
++                this.fieldError(this.errors.target)
++              }
++              .width('100%')
++              .alignItems(HorizontalAlign.Start)
++            }
++
++            SectionCard() {
++              Column({ space: 6 }) {
++                Text('判断')
++                  .fontSize(11)
++                  .fontColor(AppTheme.color.textSecondary)
++                  .width('100%')
++                TextArea({ placeholder: '写成到期能判断真假的句子', text: this.judgment })
++                  .height(84)
++                  .maxLength(MAX_JUDGMENT_LENGTH)
++                  .backgroundColor('#F7F6F2')
++                  .onChange((value: string) => {
++                    this.judgment = value;
++                  })
++                Text('需要同时包含数量与期限，结算时才有依据')
++                  .fontSize(10)
++                  .fontColor(AppTheme.color.textMuted)
++                  .width('100%')
++                this.fieldError(this.errors.judgment)
++              }
++              .width('100%')
++              .alignItems(HorizontalAlign.Start)
++            }
++
++            SectionCard() {
++              Column({ space: 6 }) {
++                Row() {
++                  Text('置信度')
++                    .fontSize(11)
++                    .fontColor(AppTheme.color.textSecondary)
++                  Blank()
++                  Text(`${this.confidence}%`)
++                    .fontSize(13)
++                    .fontColor(AppTheme.color.primary)
++                }
++                .width('100%')
++
++                Slider({ value: this.confidence, min: 1, max: 100, step: 1 })
++                  .width('100%')
++                  .selectedColor(AppTheme.color.primary)
++                  .onChange((value: number) => {
++                    this.confidence = Math.round(value);
++                  })
++                this.fieldError(this.errors.confidence)
++              }
++              .width('100%')
++              .alignItems(HorizontalAlign.Start)
++            }
++
++            SectionCard() {
++              Column({ space: 8 }) {
++                Text('结算日')
++                  .fontSize(11)
++                  .fontColor(AppTheme.color.textSecondary)
++                  .width('100%')
++                Row({ space: 6 }) {
++                  this.deadlineChip('7 天后', 7)
++                  this.deadlineChip('14 天后', 14)
++                  this.deadlineChip('30 天后', 30)
++                }
++                TextInput({ placeholder: 'YYYY-MM-DD', text: this.settlementDate })
++                  .backgroundColor('#F7F6F2')
++                  .onChange((value: string) => {
++                    this.settlementDate = value;
++                  })
++                this.fieldError(this.errors.settlementDate)
++              }
++              .width('100%')
++              .alignItems(HorizontalAlign.Start)
++            }
++
++            SectionCard() {
++              Column({ space: 6 }) {
++                Text('理由（可选）')
++                  .fontSize(11)
++                  .fontColor(AppTheme.color.textSecondary)
++                  .width('100%')
++                TextArea({ placeholder: '当时为什么这么判断？', text: this.reason })
++                  .height(72)
++                  .maxLength(MAX_REASON_LENGTH)
++                  .backgroundColor('#F7F6F2')
++                  .onChange((value: string) => {
++                    this.reason = value;
++                  })
++              }
++              .width('100%')
++              .alignItems(HorizontalAlign.Start)
++            }
++
++            Text('提交后不可修改，也不能提前结算；到期日只用于排序与提醒。')
++              .fontSize(10)
++              .lineHeight(17)
++              .fontColor(AppTheme.color.textMuted)
++              .width('100%')
++          }
++          .width('100%')
++          .padding(AppTheme.spacing.page)
++        }
++        .layoutWeight(1)
++        .scrollBar(BarState.Off)
++
++        Column() {
++          Text(this.isSaving ? '保存中…' : '落盘这条预测')
++            .fontSize(14)
++            .fontWeight(FontWeight.Medium)
++            .fontColor(Color.White)
++            .width('100%')
++            .textAlign(TextAlign.Center)
++            .padding({ top: 12, bottom: 12 })
++            .backgroundColor(this.isSaving ? '#8FA6C4' : AppTheme.color.primary)
++            .borderRadius(12)
++            .onClick(() => {
++              if (!this.isSaving) {
++                this.save();
++              }
++            })
++        }
++        .width('100%')
++        .padding({ left: AppTheme.spacing.page, right: AppTheme.spacing.page, top: 8, bottom: 24 })
++      }
++      .width('100%')
++      .height('100%')
++      .backgroundColor(AppTheme.color.page)
++    }
++    .title('新建预测')
++    .onReady((context: NavDestinationContext) => {
++      this.navStack = context.pathStack;
++    })
++  }
++}
+diff --git a/entry/src/main/ets/pages/PredictionDetailPage.ets b/entry/src/main/ets/pages/PredictionDetailPage.ets
+index 3e01107..68e31bc 100644
+--- a/entry/src/main/ets/pages/PredictionDetailPage.ets
++++ b/entry/src/main/ets/pages/PredictionDetailPage.ets
+@@ -5,8 +5,34 @@ import {
+   predictionStatusText
+ } from '../prediction';
+ import { PredictionStatus } from '../model/PredictionStatus';
+-import { PredictionDetailParams } from '../navigation/RouteParams';
++import { PredictionDetailParams, PredictionSettleParams } from '../navigation/RouteParams';
++import { ROUTES } from '../navigation/Routes';
+ import { NoteEmptyState } from '../components/NoteEmptyState';
++import { AppTheme } from '../theme/AppTheme';
++
++/** One label/value row; kept as a child component so async detail reloads re-render it. */
++@ComponentV2
++struct PredictionInfoRow {
++  @Param label: string = '';
++  @Param value: string = '';
++
++  build() {
++    Row({ space: 12 }) {
++      Text(this.label)
++        .fontSize(12)
++        .fontColor('#8A8F99')
++      Text(this.value)
++        .fontSize(12)
++        .fontColor('#1F2329')
++        .layoutWeight(1)
++        .textAlign(TextAlign.End)
++        .maxLines(2)
++        .textOverflow({ overflow: TextOverflow.Ellipsis })
++    }
++    .width('100%')
++    .padding({ top: 7, bottom: 7 })
++  }
++}
+ 
+ /** Read-only view of one prediction, including its settlement result. */
+ @ComponentV2
+@@ -27,6 +53,15 @@ export struct PredictionDetailPage {
+   @Local isLoading: boolean = true;
+   @Local missing: boolean = false;
+   private navStack: NavPathStack | null = null;
++  private hasShownOnce: boolean = false;
++
++  private openSettle(): void {
++    if (this.navStack === null) {
++      return;
++    }
++    const params: PredictionSettleParams = { predictionId: this.detail.id };
++    this.navStack.pushPathByName(ROUTES.PREDICTION_SETTLE, params);
++  }
+ 
+   private async load(id: string): Promise<void> {
+     const hostContext = this.getUIContext().getHostContext();
+@@ -64,24 +99,6 @@ export struct PredictionDetailPage {
+     return this.detail.hit === true ? '#E8F5E9' : '#FCEBEB';
+   }
+ 
+-  @Builder
+-  infoRow(label: string, value: string) {
+-    Row({ space: 12 }) {
+-      Text(label)
+-        .fontSize(12)
+-        .fontColor('#8A8F99')
+-      Text(value)
+-        .fontSize(12)
+-        .fontColor('#1F2329')
+-        .layoutWeight(1)
+-        .textAlign(TextAlign.End)
+-        .maxLines(2)
+-        .textOverflow({ overflow: TextOverflow.Ellipsis })
+-    }
+-    .width('100%')
+-    .padding({ top: 7, bottom: 7 })
+-  }
+-
+   build() {
+     NavDestination() {
+       if (this.isLoading) {
+@@ -145,11 +162,17 @@ export struct PredictionDetailPage {
+               .width('100%')
+ 
+             Column() {
+-              this.infoRow('结算日', this.detail.settlementDate)
+-              this.infoRow('状态', predictionStatusText(this.detail.status, this.detail.hit))
+-              this.infoRow('命中', predictionHitText(this.detail.hit))
+-              this.infoRow('实际结果', this.detail.actualResult.length > 0 ? this.detail.actualResult : '—')
+-              this.infoRow('创建时间', this.detail.createdAtLabel)
++              PredictionInfoRow({ label: '结算日', value: this.detail.settlementDate })
++              PredictionInfoRow({
++                label: '状态',
++                value: predictionStatusText(this.detail.status, this.detail.hit)
++              })
++              PredictionInfoRow({ label: '命中', value: predictionHitText(this.detail.hit) })
++              PredictionInfoRow({
++                label: '实际结果',
++                value: this.detail.actualResult.length > 0 ? this.detail.actualResult : '—'
++              })
++              PredictionInfoRow({ label: '创建时间', value: this.detail.createdAtLabel })
+             }
+             .width('100%')
+             .padding(16)
+@@ -174,6 +197,26 @@ export struct PredictionDetailPage {
+               .borderRadius(12)
+               .alignItems(HorizontalAlign.Start)
+             }
++
++            if (this.detail.status === PredictionStatus.PENDING) {
++              Text('结算这条预测')
++                .fontSize(13)
++                .fontColor(AppTheme.color.primary)
++                .width('100%')
++                .textAlign(TextAlign.Center)
++                .padding({ top: 10, bottom: 10 })
++                .backgroundColor(AppTheme.color.tint)
++                .borderRadius(10)
++                .onClick(() => {
++                  this.openSettle();
++                })
++            } else {
++              Text('已结算，结果不可修改')
++                .fontSize(10)
++                .fontColor('#B0B4BE')
++                .width('100%')
++                .textAlign(TextAlign.Center)
++            }
+           }
+           .width('100%')
+           .padding(16)
+@@ -196,5 +239,12 @@ export struct PredictionDetailPage {
+       const params = context.pathInfo.param as PredictionDetailParams;
+       this.load(params.predictionId);
+     })
++    .onShown(() => {
++      if (this.hasShownOnce && this.detail.id.length > 0) {
++        this.load(this.detail.id);
++      } else {
++        this.hasShownOnce = true;
++      }
++    })
+   }
+ }
+diff --git a/entry/src/main/ets/pages/PredictionListPage.ets b/entry/src/main/ets/pages/PredictionListPage.ets
+index fe32a78..f7ca97c 100644
+--- a/entry/src/main/ets/pages/PredictionListPage.ets
++++ b/entry/src/main/ets/pages/PredictionListPage.ets
+@@ -64,6 +64,12 @@ export struct PredictionListPage {
+     this.navStack.pushPathByName(ROUTES.PREDICTION_DETAIL, params);
+   }
+ 
++  private openCreate(): void {
++    if (this.navStack !== null) {
++      this.navStack.pushPathByName(ROUTES.PREDICTION_CREATE, null);
++    }
++  }
++
+   @Builder
+   filterChip(label: string, status: PredictionStatus | null) {
+     Text(label)
+@@ -78,16 +84,25 @@ export struct PredictionListPage {
+   }
+ 
+   @Builder
+-  statsMenu() {
+-    Text('统计')
+-      .fontSize(14)
+-      .fontColor('#4A6FA5')
+-      .padding({ left: 12, right: 16 })
+-      .onClick(() => {
+-        if (this.navStack !== null) {
+-          this.navStack.pushPathByName(ROUTES.PREDICTION_STATS, null);
+-        }
+-      })
++  actionsMenu() {
++    Row({ space: 2 }) {
++      Text('统计')
++        .fontSize(14)
++        .fontColor('#4A6FA5')
++        .padding({ left: 8, right: 8 })
++        .onClick(() => {
++          if (this.navStack !== null) {
++            this.navStack.pushPathByName(ROUTES.PREDICTION_STATS, null);
++          }
++        })
++      Text('＋')
++        .fontSize(20)
++        .fontColor('#4A6FA5')
++        .padding({ left: 4, right: 14 })
++        .onClick(() => {
++          this.openCreate();
++        })
++    }
+   }
+ 
+   @Builder
+@@ -198,7 +213,7 @@ export struct PredictionListPage {
+       .backgroundColor('#F5F6F8')
+     }
+     .title('预测日志')
+-    .menus(this.statsMenu)
++    .menus(this.actionsMenu)
+     .onReady((context: NavDestinationContext) => {
+       this.navStack = context.pathStack;
+       if (context.pathInfo.param !== undefined) {
+diff --git a/entry/src/main/ets/pages/PredictionSettlePage.ets b/entry/src/main/ets/pages/PredictionSettlePage.ets
+new file mode 100644
+index 0000000..7387eb7
+--- /dev/null
++++ b/entry/src/main/ets/pages/PredictionSettlePage.ets
+@@ -0,0 +1,270 @@
++import { AppTheme } from '../theme/AppTheme';
++import { SectionCard } from '../components/SectionCard';
++import { NoteEmptyState } from '../components/NoteEmptyState';
++import { PredictionDetail, PredictionService } from '../prediction';
++import { PredictionStatus } from '../model/PredictionStatus';
++import { PredictionSettleParams } from '../navigation/RouteParams';
++import { notifyHomeRefresh } from '../app/HomeRefreshBus';
++
++/** Settles one pending prediction; the result and hit flag are written once. */
++@ComponentV2
++export struct PredictionSettlePage {
++  @Local detail: PredictionDetail = {
++    id: '',
++    target: '',
++    judgment: '',
++    confidence: 0,
++    reason: '',
++    settlementDate: '',
++    status: PredictionStatus.PENDING,
++    actualResult: '',
++    hit: null,
++    version: 1,
++    createdAtLabel: ''
++  };
++  @Local actualResult: string = '';
++  @Local hitChoice: string = '';
++  @Local isLoading: boolean = true;
++  @Local missing: boolean = false;
++  @Local alreadySettled: boolean = false;
++  @Local isSaving: boolean = false;
++  @Local errorText: string = '';
++  private predictionId: string = '';
++  private navStack: NavPathStack | null = null;
++
++  private async load(id: string): Promise<void> {
++    this.predictionId = id;
++    const hostContext = this.getUIContext().getHostContext();
++    if (hostContext === undefined) {
++      this.isLoading = false;
++      this.missing = true;
++      return;
++    }
++    try {
++      const service = await PredictionService.open(hostContext);
++      const detail = await service.find(id);
++      if (detail === null) {
++        this.missing = true;
++      } else {
++        this.detail = detail;
++        this.alreadySettled = detail.status !== PredictionStatus.PENDING;
++      }
++    } catch (error) {
++      this.missing = true;
++    } finally {
++      this.isLoading = false;
++    }
++  }
++
++  private async save(): Promise<void> {
++    if (this.isSaving) {
++      return;
++    }
++    if (this.actualResult.trim().length === 0) {
++      this.errorText = '请填写实际结果';
++      return;
++    }
++    if (this.hitChoice.length === 0) {
++      this.errorText = '请选择命中或未命中';
++      return;
++    }
++    const hostContext = this.getUIContext().getHostContext();
++    if (hostContext === undefined) {
++      this.getUIContext().getPromptAction().showToast({ message: '运行环境未就绪' });
++      return;
++    }
++    this.errorText = '';
++    this.isSaving = true;
++    try {
++      const service = await PredictionService.open(hostContext);
++      const updated = await service.settle(this.predictionId, this.actualResult, this.hitChoice === 'hit');
++      if (updated === null) {
++        this.missing = true;
++        return;
++      }
++      notifyHomeRefresh();
++      this.getUIContext().getPromptAction().showToast({
++        message: updated.hit === true ? '已结算：命中' : '已结算：未命中'
++      });
++      if (this.navStack !== null) {
++        this.navStack.pop(true);
++      }
++    } catch (error) {
++      this.errorText = '结算失败：这条预测可能已经结算';
++    } finally {
++      this.isSaving = false;
++    }
++  }
++
++  @Builder
++  hitChip(label: string, value: string) {
++    Text(label)
++      .fontSize(13)
++      .fontColor(this.hitChoice === value ? Color.White : AppTheme.color.text)
++      .padding({ left: 18, right: 18, top: 8, bottom: 8 })
++      .backgroundColor(this.hitChoice === value ? AppTheme.color.primary : '#F1EFE8')
++      .borderRadius(16)
++      .onClick(() => {
++        this.hitChoice = value;
++        this.errorText = '';
++      })
++  }
++
++  build() {
++    NavDestination() {
++      if (this.isLoading) {
++        Column() {
++          LoadingProgress()
++            .width(32)
++            .height(32)
++            .color(AppTheme.color.primary)
++        }
++        .width('100%')
++        .height('100%')
++        .justifyContent(FlexAlign.Center)
++        .backgroundColor(AppTheme.color.page)
++      } else if (this.missing) {
++        Column() {
++          NoteEmptyState({
++            title: '预测不存在',
++            hint: '可能已经被删除',
++            actionLabel: '返回',
++            onAction: () => {
++              if (this.navStack !== null) {
++                this.navStack.pop();
++              }
++            }
++          })
++        }
++        .width('100%')
++        .height('100%')
++        .justifyContent(FlexAlign.Center)
++        .backgroundColor(AppTheme.color.page)
++      } else if (this.alreadySettled) {
++        Column() {
++          NoteEmptyState({
++            title: '这条预测已结算',
++            hint: '结算结果不可修改',
++            actionLabel: '返回',
++            onAction: () => {
++              if (this.navStack !== null) {
++                this.navStack.pop();
++              }
++            }
++          })
++        }
++        .width('100%')
++        .height('100%')
++        .justifyContent(FlexAlign.Center)
++        .backgroundColor(AppTheme.color.page)
++      } else {
++        Column() {
++          Scroll() {
++            Column({ space: 12 }) {
++              SectionCard() {
++                Column({ space: 6 }) {
++                  Text(this.detail.target)
++                    .fontSize(16)
++                    .fontWeight(FontWeight.Medium)
++                    .fontColor(AppTheme.color.text)
++                    .width('100%')
++                  Text(this.detail.judgment)
++                    .fontSize(13)
++                    .lineHeight(21)
++                    .fontColor(AppTheme.color.textSecondary)
++                    .width('100%')
++                  Text(`置信度 ${this.detail.confidence}% · 结算日 ${this.detail.settlementDate}`)
++                    .fontSize(10)
++                    .fontColor(AppTheme.color.textMuted)
++                    .width('100%')
++                }
++                .width('100%')
++                .alignItems(HorizontalAlign.Start)
++              }
++
++              SectionCard() {
++                Column({ space: 6 }) {
++                  Text('实际结果')
++                    .fontSize(11)
++                    .fontColor(AppTheme.color.textSecondary)
++                    .width('100%')
++                  TextArea({ placeholder: '实际发生了什么？只写可核对的事实', text: this.actualResult })
++                    .height(96)
++                    .maxLength(200)
++                    .backgroundColor('#F7F6F2')
++                    .onChange((value: string) => {
++                      this.actualResult = value;
++                    })
++                  Text('这条结果会与原始判断一起保留，用于命中率统计')
++                    .fontSize(10)
++                    .fontColor(AppTheme.color.textMuted)
++                    .width('100%')
++                }
++                .width('100%')
++                .alignItems(HorizontalAlign.Start)
++              }
++
++              SectionCard() {
++                Column({ space: 8 }) {
++                  Text('判定')
++                    .fontSize(11)
++                    .fontColor(AppTheme.color.textSecondary)
++                    .width('100%')
++                  Row({ space: 10 }) {
++                    this.hitChip('命中', 'hit')
++                    this.hitChip('未命中', 'miss')
++                  }
++                  if (this.errorText.length > 0) {
++                    Text(this.errorText)
++                      .fontSize(10)
++                      .fontColor(AppTheme.color.danger)
++                      .width('100%')
++                  }
++                }
++                .width('100%')
++                .alignItems(HorizontalAlign.Start)
++              }
++            }
++            .width('100%')
++            .padding(AppTheme.spacing.page)
++          }
++          .layoutWeight(1)
++          .scrollBar(BarState.Off)
++
++          Column() {
++            Text(this.isSaving ? '结算中…' : '确认结算')
++              .fontSize(14)
++              .fontWeight(FontWeight.Medium)
++              .fontColor(Color.White)
++              .width('100%')
++              .textAlign(TextAlign.Center)
++              .padding({ top: 12, bottom: 12 })
++              .backgroundColor(this.isSaving ? '#8FA6C4' : AppTheme.color.primary)
++              .borderRadius(12)
++              .onClick(() => {
++                if (!this.isSaving) {
++                  this.save();
++                }
++              })
++          }
++          .width('100%')
++          .padding({ left: AppTheme.spacing.page, right: AppTheme.spacing.page, top: 8, bottom: 24 })
++        }
++        .width('100%')
++        .height('100%')
++        .backgroundColor(AppTheme.color.page)
++      }
++    }
++    .title('结算预测')
++    .onReady((context: NavDestinationContext) => {
++      this.navStack = context.pathStack;
++      if (context.pathInfo.param === undefined) {
++        this.isLoading = false;
++        this.missing = true;
++        return;
++      }
++      const params = context.pathInfo.param as PredictionSettleParams;
++      this.load(params.predictionId);
++    })
++  }
++}
+diff --git a/entry/src/main/ets/prediction/PredictionService.ts b/entry/src/main/ets/prediction/PredictionService.ts
+index 665a7f8..9aab46c 100644
+--- a/entry/src/main/ets/prediction/PredictionService.ts
++++ b/entry/src/main/ets/prediction/PredictionService.ts
+@@ -7,6 +7,12 @@ import { PredictionDao } from '../db/dao/PredictionDao';
+ import { PredictionDetail, PredictionListItem, PredictionSummary } from './PredictionListItem';
+ import { summarizePredictions, toPredictionDetail, toPredictionListItems } from './PredictionListMapper';
+ import { PredictionStats, buildPredictionStats } from './PredictionStats';
++import {
++  PredictionDraft,
++  hasPredictionErrors,
++  validatePredictionDraft
++} from './PredictionValidation';
++import { createPrediction } from '../model/factories';
+ 
+ /** Reads predictions for the list page. */
+ export class PredictionService {
+@@ -51,6 +57,43 @@ export class PredictionService {
+     return buildPredictionStats(predictions);
+   }
+ 
++  /** Validates and inserts one prediction; returns the stored detail. */
++  async create(draft: PredictionDraft, now: number = Date.now()): Promise<PredictionDetail> {
++    if (hasPredictionErrors(validatePredictionDraft(draft, now))) {
++      throw new Error('invalid prediction draft');
++    }
++    const prediction = createPrediction();
++    prediction.target = draft.target.trim();
++    prediction.judgment = draft.judgment.trim();
++    prediction.confidence = Math.round(draft.confidence);
++    prediction.reason = draft.reason.trim();
++    prediction.settlementDate = draft.settlementDate.trim();
++    prediction.createdAt = now;
++    await this.predictionDao.insert(prediction);
++    return toPredictionDetail(prediction);
++  }
++
++  /**
++   * Settles a pending prediction once. Returns null when it is gone and
++   * throws when it was already settled or the result is empty.
++   */
++  async settle(id: string, actualResult: string, hit: boolean): Promise<PredictionDetail | null> {
++    const existing = await this.predictionDao.queryById(id);
++    if (existing === null) {
++      return null;
++    }
++    if (existing.status !== PredictionStatus.PENDING) {
++      throw new Error('prediction already settled');
++    }
++    const result = actualResult.trim();
++    if (result.length === 0) {
++      throw new Error('actual result required');
++    }
++    await this.predictionDao.settle(id, result, hit);
++    const updated = await this.predictionDao.queryById(id);
++    return updated === null ? null : toPredictionDetail(updated);
++  }
++
+   /**
+    * Inserts the synthetic demo predictions when the table is empty.
+    * Returns how many rows were added; existing data is never touched.
+diff --git a/entry/src/main/ets/prediction/PredictionValidation.ts b/entry/src/main/ets/prediction/PredictionValidation.ts
+new file mode 100644
+index 0000000..3935e11
+--- /dev/null
++++ b/entry/src/main/ets/prediction/PredictionValidation.ts
+@@ -0,0 +1,93 @@
++/** Draft captured before a prediction is committed. */
++export interface PredictionDraft {
++  target: string;
++  judgment: string;
++  confidence: number;
++  reason: string;
++  /** YYYY-MM-DD */
++  settlementDate: string;
++}
++
++/** Field-level messages; empty strings mean valid. */
++export interface PredictionDraftErrors {
++  target: string;
++  judgment: string;
++  confidence: string;
++  settlementDate: string;
++}
++
++export const MAX_TARGET_LENGTH = 40;
++export const MAX_JUDGMENT_LENGTH = 80;
++export const MAX_REASON_LENGTH = 120;
++
++/** Validates the draft against the commit rules; dates compare as YYYY-MM-DD strings. */
++export function validatePredictionDraft(draft: PredictionDraft, now: number = Date.now()): PredictionDraftErrors {
++  const target = draft.target.trim();
++  const judgment = draft.judgment.trim();
++  const settlementDate = draft.settlementDate.trim();
++  const errors: PredictionDraftErrors = {
++    target: '',
++    judgment: '',
++    confidence: '',
++    settlementDate: ''
++  };
++
++  if (target.length === 0) {
++    errors.target = '请填写预测对象';
++  } else if (target.length > MAX_TARGET_LENGTH) {
++    errors.target = `最多 ${MAX_TARGET_LENGTH} 个字`;
++  }
++
++  if (judgment.length === 0) {
++    errors.judgment = '请填写可检验的判断';
++  } else if (judgment.length > MAX_JUDGMENT_LENGTH) {
++    errors.judgment = `最多 ${MAX_JUDGMENT_LENGTH} 个字`;
++  }
++
++  if (!Number.isFinite(draft.confidence) || draft.confidence < 1 || draft.confidence > 100) {
++    errors.confidence = '置信度需在 1–100 之间';
++  }
++
++  if (!isValidDate(settlementDate)) {
++    errors.settlementDate = '日期格式应为 YYYY-MM-DD';
++  } else if (settlementDate < todayDateString(now)) {
++    errors.settlementDate = '结算日不能早于今天';
++  }
++
++  return errors;
++}
++
++/** True when at least one field has an error. */
++export function hasPredictionErrors(errors: PredictionDraftErrors): boolean {
++  return errors.target.length > 0 || errors.judgment.length > 0 ||
++    errors.confidence.length > 0 || errors.settlementDate.length > 0;
++}
++
++/** Today as YYYY-MM-DD in local time. */
++export function todayDateString(now: number = Date.now()): string {
++  const date = new Date(now);
++  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
++}
++
++/** Date string N days after now, used by the quick deadline chips. */
++export function dateAfterDays(now: number, days: number): string {
++  const date = new Date(now);
++  date.setDate(date.getDate() + days);
++  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
++}
++
++function isValidDate(value: string): boolean {
++  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
++    return false;
++  }
++  const parts = value.split('-');
++  const year = Number(parts[0]);
++  const month = Number(parts[1]);
++  const day = Number(parts[2]);
++  const date = new Date(year, month - 1, day);
++  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
++}
++
++function pad2(value: number): string {
++  return value < 10 ? `0${value}` : `${value}`;
++}
+diff --git a/entry/src/main/ets/prediction/index.ts b/entry/src/main/ets/prediction/index.ts
+index ffe4c33..8158f22 100644
+--- a/entry/src/main/ets/prediction/index.ts
++++ b/entry/src/main/ets/prediction/index.ts
+@@ -1,6 +1,16 @@
+ export type { PredictionDetail, PredictionListItem, PredictionSummary } from './PredictionListItem';
+ export type { PredictionMonthPoint, PredictionStats } from './PredictionStats';
+ export { buildPredictionStats } from './PredictionStats';
++export type { PredictionDraft, PredictionDraftErrors } from './PredictionValidation';
++export {
++  MAX_JUDGMENT_LENGTH,
++  MAX_REASON_LENGTH,
++  MAX_TARGET_LENGTH,
++  dateAfterDays,
++  hasPredictionErrors,
++  todayDateString,
++  validatePredictionDraft
++} from './PredictionValidation';
+ export {
+   predictionHitText,
+   predictionStatusLabel,
+diff --git a/entry/src/main/ets/views/DashboardView.ets b/entry/src/main/ets/views/DashboardView.ets
+index 1c6693c..9b98602 100644
+--- a/entry/src/main/ets/views/DashboardView.ets
++++ b/entry/src/main/ets/views/DashboardView.ets
+@@ -17,6 +17,7 @@ import { NoteListItem } from '../note/NoteListItem';
+ import { NoteEditParams, NoteListParams, PredictionDetailParams, PredictionListParams } from '../navigation/RouteParams';
+ import { ROUTES } from '../navigation/Routes';
+ import { APP_DISPLAY_NAME } from '../theme/AppIdentity';
++import { subscribeHomeRefresh, unsubscribeHomeRefresh } from '../app/HomeRefreshBus';
+ 
+ /** Dashboard content: readings first, then module tiles and the two recent lists. */
+ @ComponentV2
+@@ -33,8 +34,15 @@ export struct DashboardView {
+   @Local dataService: HomeDataService | null = null;
+   @Local isLoading: boolean = true;
+   @Local loadFailed: boolean = false;
++  private refreshListener: (() => void) | null = null;
+ 
+   async aboutToAppear(): Promise<void> {
++    if (this.refreshListener === null) {
++      this.refreshListener = () => {
++        this.refresh();
++      };
++      subscribeHomeRefresh(this.refreshListener);
++    }
+     const context = this.getUIContext().getHostContext();
+     if (context === undefined) {
+       this.isLoading = false;
+@@ -51,6 +59,13 @@ export struct DashboardView {
+     }
+   }
+ 
++  aboutToDisappear(): void {
++    if (this.refreshListener !== null) {
++      unsubscribeHomeRefresh(this.refreshListener);
++      this.refreshListener = null;
++    }
++  }
++
+   async refresh(): Promise<void> {
+     if (this.dataService === null) {
+       this.isLoading = false;
