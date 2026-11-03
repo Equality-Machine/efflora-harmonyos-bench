@@ -48,7 +48,7 @@ HDC_SERVER = "${EFFLORA_HDC_SERVER:-host.docker.internal:8710}"
 DEVICE_SN = "${EFFLORA_DEVICE_SN}"
 
 [agent]
-timeout_sec = 3600.0
+timeout_sec = 7200.0   # 2 小时：60 分钟时 36 次中 10 次超时，避免运行时长截断 agent
 user = "agent"
 # 开放互联网（同 Terminal-Bench）；题面末尾声明禁止查找本任务的线上解答，事后审查轨迹
 network_mode = "public"
