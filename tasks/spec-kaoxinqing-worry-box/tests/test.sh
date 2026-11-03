@@ -101,8 +101,9 @@ LOCK=/data/local/tmp/harbor-bench.lock
 lock_device() {
   local t0; t0=$(date +%s)
   while :; do
-    [ "$(hdc_ shell "mkdir $LOCK 2>/dev/null && echo OK")" = "OK" ] && { hdc_ shell "date +%s > $LOCK/ts" >/dev/null; return 0; }
-    local age; age=$(hdc_ shell "echo \$(( \$(date +%s) - \$(cat $LOCK/ts 2>/dev/null || echo 0) ))")
+    # 建锁和写时间戳在同一条命令里完成；读不到时间戳说明锁刚建好，按 0 秒计，不能当作残留锁清除
+    [ "$(hdc_ shell "mkdir $LOCK 2>/dev/null && date +%s > $LOCK/ts && echo OK")" = "OK" ] && return 0
+    local age; age=$(hdc_ shell "now=\$(date +%s); echo \$(( now - \$(cat $LOCK/ts 2>/dev/null || echo \$now) ))")
     [ "${age:-0}" -gt 900 ] 2>/dev/null && { log "设备锁已残留 ${age} 秒，清除"; hdc_ shell "rm -rf $LOCK" >/dev/null; continue; }
     [ $(( $(date +%s) - t0 )) -gt 5400 ] && { log "设备异常：等待设备锁超时"; return 1; }
     sleep 5
