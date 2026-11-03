@@ -49,8 +49,10 @@ device_locale = "zh-Hans-CN"
 calibration = "迁入 efflora-harmonyos-bench（Command Line Tools 6.1.1.418）后待重新校准；迁入前 opus-5.5 2/4（2026-10-30，CLT 26.0.0.851）"
 
 [verifier]
-# 3 个功能 F-point + 2 个回归，共 11 个阶段，单阶段上限 480 秒；另含等待设备锁的时间
-timeout_sec = 9000.0
+# 预算 = 等待设备锁（verify_config.json 的 device_lock_wait_sec，最长 7200 秒）
+#      + 构建 app / ohosTest HAP + 11 个阶段 × 单阶段上限 480 秒（3 个功能 F-point + 2 个回归）+ 重试余量。
+# 必须大于这几项之和，否则等锁久了会被 Harbor 中途杀掉（不走 verify.py 的基础设施错误退出，且锁要等过期才释放）
+timeout_sec = 14400.0
 # Harbor 0.24 的默认值是 shared，这里必须显式写 separate
 environment_mode = "separate"
 
