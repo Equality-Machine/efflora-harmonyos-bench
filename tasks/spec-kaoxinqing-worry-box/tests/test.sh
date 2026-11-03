@@ -60,7 +60,7 @@ PY
 cd "$APP" || { log "工程目录不存在：$APP"; exit 2; }
 
 # 0. 导出 Agent 的改动（须在复制隐藏测试之前）
-git add -A >/dev/null 2>&1 && git diff --cached --binary HEAD > "$OUT/model.patch" 2>/dev/null || true
+git config --global --add safe.directory "$APP" 2>/dev/null; git add -A >/dev/null 2>&1 && git diff --cached --binary HEAD > "$OUT/model.patch" 2>/dev/null || true
 
 # 1. 还原隐藏测试：整个 ohosTest 目录以测试资产为准
 rm -rf "$APP/entry/src/ohosTest"

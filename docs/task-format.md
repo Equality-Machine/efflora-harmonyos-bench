@@ -14,6 +14,7 @@ tasks/<task-id>/          # 所有任务平铺；<task-id> = <category>-<app>-<s
 ├── solution/
 │   └── solve.sh          # 必需：参考解
 └── tests/
+    ├── Dockerfile        # 必需：独立验证容器的镜像（基础镜像 + COPY . /tests/）
     ├── test.sh           # 必需：验证入口，写入 /logs/verifier/reward.txt
     └── ...               # 隐藏测试用例（ArkTS 测试文件、Python 校验脚本等）
 ```
@@ -30,6 +31,7 @@ harbor task init efflora/<task-id> -p tasks --no-pytest
 
 ```toml
 schema_version = "1.4"
+artifacts = ["/workspace/app"]       # 验证时把 Agent 改过的工程传入独立的验证容器
 
 [task]
 name = "efflora/bugfix-notepad-crash-on-empty-title"
@@ -53,7 +55,7 @@ tags = ["state-management"]
 
 [verifier]
 timeout_sec = 1200
-environment_mode = "shared"         # 测试需要在 Agent 修改后的同一环境中构建
+environment_mode = "separate"       # 在独立的验证容器中评分（Harbor 0.24 默认是 shared，必须显式写）
 
 [agent]
 timeout_sec = 3600
@@ -65,7 +67,7 @@ memory_mb = 8192
 storage_mb = 20480
 ```
 
-> 注意：鸿蒙任务需在 Agent 修改后的工程上直接构建和运行测试，本基准统一显式写 `verifier.environment_mode = "shared"`，且不得配置 `[verifier.environment]`（Harbor 0.24.0 中一旦配置该段即隐式切换为 `"separate"`，与 `"shared"` 同时出现会报错）。
+> 注意：本基准统一显式写 `verifier.environment_mode = "separate"`，并在顶层声明 `artifacts = ["/workspace/app"]`。验证阶段 Harbor 用 `tests/Dockerfile`（基础镜像 + `COPY . /tests/`）新建一个干净的验证容器，只把 Agent 的 `/workspace/app` 传进去，Agent 对工具链、PATH、后台进程等的改动不会影响评分。`tests/` 下必须有 `Dockerfile`，否则 Harbor 会退回用 `environment/Dockerfile` 构建验证容器。不要配置 `[verifier.environment]`。
 
 ## 奖励
 
